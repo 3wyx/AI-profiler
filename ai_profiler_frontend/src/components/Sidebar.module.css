@@ -1,0 +1,73 @@
+.navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100vw;
+  height: 60px;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  box-sizing: border-box;
+  gap: 8px;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 24px;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  color: var(--text-main);
+  background-color: rgba(120, 120, 120, 0.08);
+}
+
+.active {
+  color: var(--accent);
+  background-color: rgba(99, 102, 241, 0.1);
+  font-weight: 600;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--error);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(248, 81, 73, 0.1);
+}

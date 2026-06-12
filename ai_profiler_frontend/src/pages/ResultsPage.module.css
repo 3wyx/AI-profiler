@@ -1,0 +1,27 @@
+.page { padding: 30px 0 0 60px; 
+  width: 92%;}
+.title { margin-bottom: 30px; font-size: 1.8rem; }
+.layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 12px;
+}
+.chartWrapper { margin-top: 20px; }
+.recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.bullet {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.bullet:last-child { border-bottom: none; }

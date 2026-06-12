@@ -1,0 +1,32 @@
+.page { padding: 60px; }
+.title { margin-bottom: 30px; font-size: 1.8rem; }
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 12px;
+  width: 96%;
+}
+.settingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settingRow:last-child { border-bottom: none; }
+.desc { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0; }
+.themeBtn, .actionBtn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-main);
+  cursor: pointer;
+  font-weight: 500;
+}
+.themeBtn:hover { background-color: var(--border); }
+.actionBtn { border-color: var(--error); color: var(--error); }
+.actionBtn:hover { background-color: rgba(207, 34, 46, 0.05); }
+.greenBtn { border-color: var(--success); color: var(--success); }
+.greenBtn:hover { background-color: rgba(26, 127, 55, 0.05); }
