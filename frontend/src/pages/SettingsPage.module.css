@@ -1,0 +1,118 @@
+.page { padding: 60px; }
+.title { margin-bottom: 30px; font-size: 1.8rem; }
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 12px;
+  width: 96%;
+}
+.settingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settingRow:last-child { border-bottom: none; }
+.desc { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0; }
+
+/* Тумблер-картинка переключения темы */
+.themeToggle {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.themeToggle:hover {
+  transform: scale(1.05);
+}
+.themeToggleImg {
+  display: block;
+  width: 84px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.actionBtn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-main);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.securityRow {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.securityRowHeader {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.pwdForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.pwdInput {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.pwdInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.pwdError {
+  color: var(--error);
+  font-size: 0.83rem;
+  margin: 0;
+}
+
+.pwdSuccess {
+  color: var(--success);
+  font-size: 0.83rem;
+  margin: 0;
+}
+
+.pwdSaveBtn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+.pwdSaveBtn:hover:not(:disabled) { opacity: 0.85; }
+.pwdSaveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.themeBtn:hover { background-color: var(--border); }
+.actionBtn { border-color: var(--error); color: var(--error); }
+.actionBtn:hover { background-color: rgba(207, 34, 46, 0.05); }
+.greenBtn { border-color: var(--success); color: var(--success); }
+.greenBtn:hover { background-color: rgba(26, 127, 55, 0.05); }

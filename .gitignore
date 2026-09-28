@@ -1,0 +1,18 @@
+# Секреты
+.env
+
+# Зависимости и сборка фронтенда
+frontend/node_modules/
+frontend/dist/
+
+# Python-мусор
+__pycache__/
+*.pyc
+
+# База данных и загруженные файлы пользователей
+backend/profiler.db
+backend/uploads/
+
+# Настройки редактора и временные файлы
+.vscode/
+~$*

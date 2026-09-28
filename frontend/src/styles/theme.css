@@ -1,0 +1,52 @@
+:root {
+  /* Светлая тема */
+  --background: #f6f8fa;
+  --surface: #ffffff;
+  --border: #d0d7de;
+  --text-main: #24292f;
+  --text-muted: #57606a;
+  --accent: #6b64e9;
+  --accent-hover: #4338ca;
+  --success: #1a7f37;
+  --error: #cf222e;
+  --var2: #e0e4eb;
+  --var1: #bfd5fa;
+}
+
+[data-theme='dark'] {
+  /* Темная тема (в стиле скриншота) */
+  --background: #0f141c;
+  --surface: #161b22;
+  --border: #21262d;
+  --text-main: #c9d1d9;
+  --text-muted: #8b949e;
+  --accent: #7375e9;
+  --accent-hover: #4f46e5;
+  --success: #238636;
+  --error: #f85149;
+  --var1: #1a1f27;
+  --var2: #2b456e;
+}
+
+body {
+  margin: 0;
+  /* background-color: var(--background); */
+  /* background: linear-gradient(180deg, var(--var1), var(--var2)); */
+  background: radial-gradient(circle at 50% 50%, var(--var2), var(--var1));
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: 'Jura', sans-serif; 
+  transition: background-color 0.3s, color 0.3s;
+  display: flex;
+}
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}

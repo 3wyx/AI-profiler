@@ -1,0 +1,75 @@
+.wideCard {
+  max-width: 460px !important;
+}
+.bgContainer {
+  background-image: url('../assets/centerd-light.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+[data-theme='dark'] .bgContainer {
+  background-image: url('../assets/centerd-dark.png');
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.row > .field {
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px !important;
+}
+
+.errorMsg {
+  color: var(--error);
+  font-size: 13px;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: rgba(207, 34, 46, 0.08);
+  border-radius: 6px;
+  border-left: 3px solid var(--error);
+}
+
+.successMsg {
+  color: var(--success);
+  font-size: 13px;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: rgba(26, 127, 55, 0.08);
+  border-radius: 6px;
+  border-left: 3px solid var(--success);
+}
+
+.switchBtn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+
+.switchBtn:hover {
+  opacity: 0.75;
+}

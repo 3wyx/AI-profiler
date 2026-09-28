@@ -1,0 +1,300 @@
+.page {
+  padding: 30px 0 0 60px;
+  width: 92vw;
+}
+.title {
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 12px;
+  flex: 1 1 calc(50% - 20px);
+  min-width: 300px;
+  box-sizing: border-box;
+  width: 100%;
+}
+#skills {
+  display: flex;
+}
+.chartContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fullWidth {
+  width: 100%;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  margin-top: 4px;
+  grid-column: span 2;
+}
+.aiText {
+  padding: 16px;
+  background-color: rgba(99, 102, 241, 0.05);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+/* ── Портфолио ──────────────────────────────────── */
+
+.portfolioHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.portfolioHeader h3 {
+  margin: 0;
+}
+
+.addBtn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.addBtn:hover { opacity: 0.85; }
+
+/* Форма добавления */
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.formSelect,
+.formInput {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.formSelect:focus,
+.formInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.formError {
+  color: var(--error);
+  font-size: 0.83rem;
+  margin: 0;
+}
+.formActions {
+  display: flex;
+  gap: 10px;
+}
+.saveBtn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: opacity 0.15s;
+}
+.saveBtn:disabled { opacity: 0.6; cursor: default; }
+.saveBtn:hover:not(:disabled) { opacity: 0.85; }
+.cancelBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+.cancelBtn:hover { border-color: var(--text-muted); }
+
+/* Переключатель Ссылка / Файл */
+.attachToggle {
+  display: flex;
+  gap: 8px;
+}
+.toggleBtn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.toggleBtn:hover {
+  border-color: var(--accent);
+  color: var(--text-main);
+}
+.toggleActive {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Блок загрузки файла */
+.fileInputWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  padding: 12px;
+}
+.fileInputHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.fileInputLabel {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fileInputLabel:hover { opacity: 0.85; }
+.fileInfo {
+  font-size: 0.83rem;
+  color: var(--text-main);
+  word-break: break-all;
+}
+.fileHint {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Список */
+.portfolioList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.portfolioEmpty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Карточка элемента */
+.portfolioItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.portfolioItem:hover { border-color: var(--accent); }
+.portfolioItemLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.portfolioEmoji {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.portfolioTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+.portfolioLink {
+  color: var(--accent);
+  text-decoration: none;
+}
+.portfolioLink:hover { text-decoration: underline; }
+.portfolioMeta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.portfolioType {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.portfolioDesc { color: var(--text-muted); }
+.portfolioAttachment {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  word-break: break-all;
+}
+.portfolioDate {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.deleteBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.deleteBtn:hover {
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.chartHint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.aiTextWrap {
+  white-space: pre-wrap;
+  line-height: 1.7;
+}

@@ -1,0 +1,116 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background);
+}
+.loginBg {
+  background-image: url('../assets/cosmos_1567965016.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+[data-theme='dark'] .loginBg {
+  background-image: url('../assets/dark-fone.png');
+}
+/* Переключатель темы (вход/регистрация) — картинка-тумблер */
+.themeToggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 0;
+  transition: transform 0.15s;
+}
+.themeToggle:hover {
+  transform: scale(1.05);
+}
+.themeToggleImg {
+  display: block;
+  width: 84px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.title {
+  margin: 0 0 8px 0;
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+.roleSelector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.roleBtn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-main);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.activeRole {
+  background-color: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-main);
+}
+
+.submitBtn {
+  padding: 12px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.submitBtn:hover { background-color: var(--accent-hover); }

@@ -1,0 +1,645 @@
+.page {
+  padding: 30px 40px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* ── Шапка профиля ── */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05));
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatarIcon { font-size: 2rem; }
+
+.profileInfo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.profileName {
+  margin: 0 0 8px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.profileMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.metaItem {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 24px;
+  min-width: 80px;
+}
+
+.statNum {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Табы ── */
+.tabBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tabBtn {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.tabBtn:hover {
+  color: var(--text-main);
+  background-color: rgba(120, 120, 120, 0.08);
+}
+
+.tabActive {
+  background-color: var(--accent) !important;
+  color: white !important;
+  border-color: var(--accent) !important;
+  font-weight: 600;
+}
+
+/* ── Секция ── */
+.section {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--background);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  min-width: 240px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus { border-color: var(--accent); }
+
+.filterSelect {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--background);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── Таблица ── */
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  background-color: var(--background);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.thScore {
+  text-align: center;
+  min-width: 100px;
+}
+
+.td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.trEven { background-color: var(--surface); }
+.trOdd  { background-color: rgba(0,0,0,0.015); }
+
+[data-theme='dark'] .trOdd { background-color: rgba(255,255,255,0.02); }
+
+.tdMuted {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.tdScore { text-align: center; }
+.studentName { font-weight: 500; }
+
+.profileBadge {
+  display: inline-block;
+  background-color: rgba(99, 102, 241, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Кнопка "Смотреть портфолио" в таблице */
+.portfolioBtn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--accent);
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.portfolioBtn:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--accent);
+}
+
+/* ── Score bar ── */
+.barWrap {
+  position: relative;
+  height: 20px;
+  background-color: var(--background);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 70px;
+  border: 1px solid var(--border);
+}
+
+.barFill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+  opacity: 0.8;
+}
+
+.barLabel {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-main);
+  z-index: 1;
+}
+
+/* ── Команды ── */
+.teamsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.teamCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.teamHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.teamIcon  { font-size: 1.2rem; }
+.teamTitle { margin: 0; font-size: 1rem; font-weight: 600; flex: 1; }
+.teamCount {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background-color: var(--border);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.memberList {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  gap: 10px;
+}
+
+.memberLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.memberAvatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(99,102,241,0.1));
+  border: 1px solid rgba(99,102,241,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.memberName    { font-size: 0.875rem; font-weight: 500; color: var(--text-main); }
+.memberProfile { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+
+.memberScores { display: flex; gap: 4px; flex-shrink: 0; }
+
+.miniScore {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background-color: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teamDesc {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+/* ── States ── */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.emptyState {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.refreshBtn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.refreshBtn:hover:not(:disabled) { color: var(--text-main); border-color: var(--accent); }
+.refreshBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Модальное окно портфолио студента ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.modalTitle {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.modalSub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.modalClose:hover { color: var(--text-main); background: var(--border); }
+
+/* Скоры внутри модалки */
+.modalScores {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modalScoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalScoreLabel {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.modalProfile {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Портфолио внутри модалки */
+.modalPortfolio {
+  padding: 20px 24px 24px;
+}
+
+.modalPortfolioTitle {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modalEmpty {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.modalItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.modalItem:hover { border-color: var(--accent); }
+
+.modalItemEmoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.modalItemBody { flex: 1; min-width: 0; }
+
+.modalItemTitle {
+  font-weight: 600;
+  font-size: 0.93rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.modalItemLink {
+  color: var(--accent);
+  text-decoration: none;
+}
+.modalItemLink:hover { text-decoration: underline; }
+
+.modalItemMeta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.portfolioType {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.modalItemDesc { color: var(--text-muted); }
+
+.modalItemAttachment {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  word-break: break-all;
+}
+
+.modalItemDate {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ── Закрепленные команды ── */
+.subsectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 24px 0 16px 0;
+  padding: 0;
+}
+
+.teamCardPinned {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.04));
+  border: 1.5px solid rgba(34, 197, 94, 0.3);
+}
+
+.pinBtn,
+.unpinBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.pinBtn:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent);
+}
+
+.unpinBtn:hover {
+  background: rgba(207, 34, 46, 0.1);
+  color: var(--error);
+}
