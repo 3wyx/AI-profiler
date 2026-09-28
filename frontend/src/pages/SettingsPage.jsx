@@ -14,7 +14,7 @@ const SettingsPage = ({ user }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
 
-  // Смена пароля
+  // Поля смены пароля.
   const [showPwdForm, setShowPwdForm] = useState(false);
   const [oldPwd, setOldPwd]           = useState('');
   const [newPwd, setNewPwd]           = useState('');
@@ -86,7 +86,7 @@ const SettingsPage = ({ user }) => {
           </button>
         </div>
 
-        {/* Безопасность — смена пароля */}
+        {/* Безопасность */}
         <div className={`${styles.settingRow} ${styles.securityRow}`}>
           <div className={styles.securityRowHeader}>
             <div>
@@ -137,7 +137,7 @@ const SettingsPage = ({ user }) => {
           )}
         </div>
 
-        {/* Поддержка — только для не-админов */}
+        {/* Поддержка */}
         {!isAdmin && (
           <div className={styles.settingRow}>
             <div>

@@ -1,9 +1,8 @@
 import React from 'react';
-import * as Icons from 'lucide-react'; // Импортируем все иконки как объект
+import * as Icons from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
-  // Вместо передачи самих компонентов иконок, передаем их строковые названия
   const menuItems = [
     { id: 'profile', label: 'Мой профиль', iconName: 'User' },
     { id: 'testing', label: 'Тестирование', iconName: 'ClipboardList' },
@@ -16,7 +15,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
       <div className={styles.logo}>AI-profiler</div>
       <nav className={styles.nav}>
         {menuItems.map((item) => {
-          // Динамически берем нужный компонент иконки по его текстовому имени
+          // Ищем иконку по имени из menuItems.
           const LucideIcon = Icons[item.iconName];
 
           return (

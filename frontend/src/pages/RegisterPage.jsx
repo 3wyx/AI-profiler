@@ -10,7 +10,7 @@ const RegisterPage = ({ onSwitch }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Общие поля
+  // Поля регистрации.
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [middleName, setMiddleName] = useState('');
@@ -18,7 +18,7 @@ const RegisterPage = ({ onSwitch }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Только для студента
+  // Поля студента.
   const [groupNumber, setGroupNumber] = useState('');
   const [groupName, setGroupName] = useState('');
   const [courseYear, setCourseYear] = useState('');
@@ -39,7 +39,7 @@ const RegisterPage = ({ onSwitch }) => {
     }
 
     const fullName = [lastName, firstName, middleName].filter(Boolean).join(' ');
-    const login = email; // корпоративная почта как логин
+    const login = email; // Email используется как логин.
 
     const body = {
       name: fullName,

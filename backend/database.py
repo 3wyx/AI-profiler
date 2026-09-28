@@ -12,7 +12,6 @@ def init_db():
     conn = get_connection()
     cur = conn.cursor()
 
-    # Таблица пользователей
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +38,6 @@ def init_db():
         except Exception:
             pass
 
-    # Таблица результатов тестов
     cur.execute("""
         CREATE TABLE IF NOT EXISTS results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +66,6 @@ def init_db():
         except Exception:
             pass
 
-    # Таблица портфолио
     cur.execute("""
         CREATE TABLE IF NOT EXISTS portfolio (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,7 +90,6 @@ def init_db():
         except Exception:
             pass
 
-    # Таблица запросов в поддержку
     cur.execute("""
         CREATE TABLE IF NOT EXISTS support_tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,7 +112,6 @@ def init_db():
         except Exception:
             pass
 
-    # Таблица закрепленных команд
     cur.execute("""
         CREATE TABLE IF NOT EXISTS pinned_teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -132,7 +127,6 @@ def init_db():
     except Exception:
         pass
 
-    # Таблица инвайт-токенов для преподавателей
     cur.execute("""
         CREATE TABLE IF NOT EXISTS invite_tokens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -263,9 +257,7 @@ def add_user(name, login, password, role,
         conn.close()
         return False
 
-# ─────────────────────────────────────
 # ПОРТФОЛИО
-# ─────────────────────────────────────
 
 def add_portfolio_item(user_id, type_, title, description, link=None,
                        file_path=None, file_name=None, file_data=None):
@@ -313,9 +305,7 @@ def delete_portfolio_item(item_id, user_id):
     conn.close()
     return True, file_path
 
-# ─────────────────────────────────────
 # ПОДДЕРЖКА
-# ─────────────────────────────────────
 
 def add_support_request(user_id, subject, message):
     conn = get_connection()
@@ -390,9 +380,7 @@ def change_password(user_id, new_password):
     conn.commit()
     conn.close()
 
-# ─────────────────────────────────────
 # ЗАКРЕПЛЕННЫЕ КОМАНДЫ
-# ─────────────────────────────────────
 
 def add_pinned_team(user_id, team_data):
     import json
@@ -438,16 +426,14 @@ def delete_pinned_team(team_id, user_id):
     conn.close()
     return changed > 0
 
-# ─────────────────────────────────────
 # ТОКЕН ИНВАЙТ ДЛЯ ПРЕПОДАВАТЕЛЕЙ
-# ─────────────────────────────────────
 
 import secrets
 
 def create_invite_token(email, role="teacher"):
     conn = get_connection()
     cur = conn.cursor()
-    token = secrets.token_hex(4).upper()  # например "A1B2C3D4"
+    token = secrets.token_hex(4).upper()
     cur.execute("""
         INSERT INTO invite_tokens (token, email, role)
         VALUES (?, ?, ?)

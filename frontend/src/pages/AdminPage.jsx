@@ -23,7 +23,7 @@ const formatDate = (dateStr) => {
   return `${d}.${m}.${y}${timePart ? ' ' + timePart.slice(0, 5) : ''}`;
 };
 
-// ─── Модал смены логина/пароля ────────────────────────────────────────────────
+// Модальное окно смены логина и пароля.
 const CredentialsModal = ({ userId, userName, onClose }) => {
   const [newLogin, setNewLogin]       = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -116,7 +116,7 @@ const CredentialsModal = ({ userId, userName, onClose }) => {
   );
 };
 
-// ─── Модальное окно с полным текстом запроса ─────────────────────────────────
+// Модальное окно запроса поддержки.
 const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
   const [showCredentials, setShowCredentials] = useState(false);
   const [replyText, setReplyText] = useState('');
@@ -185,109 +185,109 @@ const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
   );
 };
 
-// ─── Секция инвайт-кодов для преподавателей ──────────────────────────────────
-const InviteSection = () => {
-  const [email, setEmail]     = useState('');      // email, для которого создаём код
-  const [invites, setInvites] = useState([]);      // список всех созданных кодов
-  const [error, setError]     = useState('');      // текст ошибки
-  const [lastToken, setLastToken] = useState('');  // последний созданный код (чтобы показать админу)
-  const [loading, setLoading] = useState(false);   // флаг загрузки
+// Модальное окно приглашений преподавателей.
+const InviteModal = ({ onClose }) => {
+  const [email, setEmail]     = useState('');
+  const [invites, setInvites] = useState([]);
+  const [error, setError]     = useState('');
+  const [lastToken, setLastToken] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Загрузка списка кодов с сервера
   const loadInvites = () => {
-    fetch(`${API}/api/invite/list`)                              // запрос списка
-      .then((r) => r.json())                                     // разбираем JSON
-      .then((data) => setInvites(Array.isArray(data) ? data : [])) // сохраняем, если это массив
-      .catch(() => setInvites([]));                              // при ошибке — пустой список
+    fetch(`${API}/api/invite/list`)
+      .then((r) => r.json())
+      .then((data) => setInvites(Array.isArray(data) ? data : []))
+      .catch(() => setInvites([]));
   };
 
-  useEffect(() => { loadInvites(); }, []);                       // загружаем список при открытии страницы
+  useEffect(() => { loadInvites(); }, []);
 
-  // Создание нового кода
   const handleCreate = async () => {
-    if (!email.trim()) { setError('Укажите email преподавателя'); return; } // проверка пустого поля
-    setLoading(true);                                            // включаем загрузку
-    setError('');                                                // сбрасываем ошибку
-    setLastToken('');                                            // сбрасываем прошлый код
+    if (!email.trim()) { setError('Укажите email преподавателя'); return; }
+    setLoading(true);
+    setError('');
+    setLastToken('');
     try {
-      const res = await fetch(`${API}/api/invite/create`, {      // отправляем запрос на создание
-        method: 'POST',                                          // метод POST
-        headers: { 'Content-Type': 'application/json' },         // тело — JSON
-        body: JSON.stringify({ email: email.trim(), role: 'teacher' }), // email и роль
+      const res = await fetch(`${API}/api/invite/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), role: 'teacher' }),
       });
-      const data = await res.json();                             // читаем ответ
-      if (!res.ok) { setError(data.error || 'Ошибка'); return; } // показываем ошибку сервера
-      setLastToken(data.token);                                  // запоминаем код, чтобы показать на экране
-      setEmail('');                                              // очищаем поле
-      loadInvites();                                             // обновляем таблицу
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Ошибка'); return; }
+      setLastToken(data.token);
+      setEmail('');
+      loadInvites();
     } catch {
-      setError('Не удалось подключиться к серверу');             // ошибка сети
+      setError('Не удалось подключиться к серверу');
     } finally {
-      setLoading(false);                                         // выключаем загрузку
+      setLoading(false);
     }
   };
 
   return (
-    <div className={styles.section} style={{ marginBottom: '1.5rem' }}>
-      <div className={styles.sectionHeader}>
-        <h2 className={styles.title} style={{ fontSize: '18px' }}>Коды приглашения для преподавателей</h2>
-      </div>
-
-      {/* Поле ввода email + кнопка */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-        <input
-          type="email"
-          className={styles.searchInput}
-          placeholder="Email преподавателя"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button className={styles.refreshBtn} onClick={handleCreate} disabled={loading}>
-          {loading ? 'Создаём...' : 'Создать код'}
-        </button>
-      </div>
-
-      {error && <p style={{ color: 'red', fontSize: '13px' }}>{error}</p>}
-
-      {/* Показываем созданный код — на случай, если письмо не дошло */}
-      {lastToken && (
-        <p style={{ fontSize: '14px', marginBottom: '12px' }}>
-          Код создан: <strong style={{ letterSpacing: '2px' }}>{lastToken}</strong> (также отправлен на почту)
-        </p>
-      )}
-
-      {/* Таблица всех кодов */}
-      {invites.length === 0 ? (
-        <div className={styles.emptyState}>Кодов пока нет</div>
-      ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}>Код</th>
-                <th className={styles.th}>Email</th>
-                <th className={styles.th}>Статус</th>
-                <th className={styles.th}>Создан</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invites.map((inv, i) => (
-                <tr key={inv.id} className={i % 2 === 0 ? styles.trEven : styles.trOdd}>
-                  <td className={styles.td}><strong>{inv.token}</strong></td>
-                  <td className={styles.td}>{inv.email}</td>
-                  <td className={styles.td}>{inv.used ? '✅ Использован' : '🕓 Ожидает'}</td>
-                  <td className={`${styles.td} ${styles.tdMuted}`}>{formatDate(inv.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Коды приглашения для преподавателей</h2>
+          <button className={styles.modalClose} onClick={onClose}>✕</button>
         </div>
-      )}
+
+        <div className={styles.modalBody}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <input
+              type="email"
+              className={styles.searchInput}
+              placeholder="Email преподавателя"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button className={styles.refreshBtn} onClick={handleCreate} disabled={loading}>
+              {loading ? 'Создаём...' : 'Создать код'}
+            </button>
+          </div>
+
+          {error && <p style={{ color: 'red', fontSize: '13px' }}>{error}</p>}
+
+          {lastToken && (
+            <p style={{ fontSize: '14px', marginBottom: '12px' }}>
+              Код создан: <strong style={{ letterSpacing: '2px' }}>{lastToken}</strong> (также отправлен на почту)
+            </p>
+          )}
+
+          {invites.length === 0 ? (
+            <div className={styles.emptyState}>Кодов пока нет</div>
+          ) : (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th className={styles.th}>Код</th>
+                    <th className={styles.th}>Email</th>
+                    <th className={styles.th}>Статус</th>
+                    <th className={styles.th}>Создан</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invites.map((inv, i) => (
+                    <tr key={inv.id} className={i % 2 === 0 ? styles.trEven : styles.trOdd}>
+                      <td className={styles.td}><strong>{inv.token}</strong></td>
+                      <td className={styles.td}>{inv.email}</td>
+                      <td className={styles.td}>{inv.used ? '✅ Использован' : '🕓 Ожидает'}</td>
+                      <td className={`${styles.td} ${styles.tdMuted}`}>{formatDate(inv.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-// ─── Главная страница администратора ─────────────────────────────────────────
+// Страница администратора.
 const AdminPage = () => {
   const [requests, setRequests]         = useState([]);
   const [loading, setLoading]           = useState(true);
@@ -295,7 +295,8 @@ const AdminPage = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [selected, setSelected]         = useState(null);
   const [updatingId, setUpdatingId]     = useState(null);
-  const [replyText, setReplyText] = useState('');
+  const [replyText, setReplyText]       = useState('');
+  const [showInvites, setShowInvites]   = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -344,7 +345,9 @@ const AdminPage = () => {
     <div className={styles.page}>
       <h1 className={styles.title}>Панель администратора</h1>
 
-      <InviteSection />
+      <button className={styles.refreshBtn} onClick={() => setShowInvites(true)} style={{ marginBottom: '1rem' }}>
+        Коды приглашения
+      </button>
 
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
@@ -458,6 +461,8 @@ const AdminPage = () => {
         onStatusChange={handleStatusChange}
         updating={selected && updatingId === selected.id}
       />
+
+      {showInvites && <InviteModal onClose={() => setShowInvites(false)} />}
     </div>
   );
 };

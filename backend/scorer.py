@@ -1,10 +1,10 @@
 import json
 
-# Загружаем вопросы из файла
+# Загружаем вопросы.
 with open("questions.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
-# Строим удобный словарь: id вопроса -> правильный ответ и модуль
+# Подготавливаем данные вопросов для расчета баллов.
 question_map = {}
 for module in data["modules"]:
     for q in module["questions"]:
@@ -15,10 +15,9 @@ for module in data["modules"]:
             "weight": module["weight"]
         }
 
-# Считаем баллы по каждому модулю
+# Расчет баллов по модулям.
 def calculate_scores(answers):
-    # answers — словарь вида {"algo_1": 0, "algo_2": 2, ...}
-    # значение — индекс выбранного ответа (0, 1, 2 или 3)
+    # answers содержит ID вопросов и индексы выбранных вариантов.
 
     raw_scores = {
         "algo": 0,
@@ -44,7 +43,6 @@ def calculate_scores(answers):
         if chosen == q["correct"]:
             raw_scores[mod] += q["points"]
 
-    # Переводим в проценты (0-100)
     final_scores = {}
     for mod in raw_scores:
         if max_scores[mod] > 0:
@@ -54,7 +52,7 @@ def calculate_scores(answers):
 
     return final_scores
 
-# Определяем тип профиля по баллам
+# Определение профиля.
 def get_profile(scores):
     profile_map = {
         "coding":       "Разработчик (Developer)",
@@ -64,17 +62,16 @@ def get_profile(scores):
         "teamwork":     "Командный лидер (Leader)",
     }
 
-    # Находим модуль с наибольшим баллом
     best_module = max(scores, key=lambda k: scores.get(k, 0))
     best_score  = scores.get(best_module, 0)
 
-    # Если все баллы очень низкие (< 45%) — универсал
+    # При низком максимальном балле профиль считается универсальным.
     if best_score < 45:
         return "Универсальный участник"
 
     return profile_map.get(best_module, "Универсальный участник")
 
-# Даём рекомендации на основе профиля
+# Рекомендации по профилю.
 def get_recommendations(scores):
     recommendations = []
 
@@ -103,18 +100,16 @@ def form_teams_without_ai(students, team_size=5):
     if not students:
         return []
 
-    # Считаем общий балл каждого студента
     for s in students:
         s["_total"] = s.get("algo", 0) + s.get("coding", 0) + s.get("design", 0) + \
                       s.get("entrepreneur", 0) + s.get("teamwork", 0)
 
-    # Сортируем по убыванию общего балла
     sorted_students = sorted(students, key=lambda s: s["_total"], reverse=True)
 
     num_teams = max(1, round(len(sorted_students) / team_size))
     teams = [[] for _ in range(num_teams)]
 
-    # Распределяем "змейкой" — так сильные и слабые окажутся в разных командах
+    # Распределяем студентов «змейкой», чтобы сбалансировать команды.
     forward = True
     idx = 0
     for student in sorted_students:
@@ -130,7 +125,6 @@ def form_teams_without_ai(students, team_size=5):
                 idx = 0
                 forward = True
 
-    # Формируем читаемый результат
     result = []
     for i, team in enumerate(teams):
         members = []

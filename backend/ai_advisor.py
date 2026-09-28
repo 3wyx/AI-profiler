@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Вставь свой ключ сюда
 client = OpenAI(
     api_key=os.environ["OPENROUTER_API_KEY"],
     base_url="https://openrouter.ai/api/v1/chat/completions"
@@ -175,16 +174,16 @@ def generate_questions():
 
     import json
     text = response.choices[0].message.content
-    # Убираем markdown если ChatGPT обернул в ```json
+    # Удаляем Markdown-обертку вокруг JSON.
     print("=== ОТВЕТ МОДЕЛИ ===")
-    print(text[:500])  # первые 500 символов
+    print(text[:500])
     print("===================")
     text = text.replace("```json", "").replace("```", "").strip()
-# Пробуем починить обрезанный JSON
+    # Восстанавливаем обрезанный JSON.
     try:
         return json.loads(text)
     except:
-        # Если обрезан — добавляем закрывающие скобки
+        # Закрываем незавершенные массивы и объекты.
         text = text.rstrip()
         if not text.endswith('}'):
             text += ']}' * text.count('[') - text.count(']')

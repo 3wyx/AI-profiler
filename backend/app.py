@@ -42,9 +42,7 @@ def allowed_file(filename):
 def index():
     return send_from_directory(app.static_folder, "index.html")
 
-# ─────────────────────────────────────
 # ВОПРОСЫ
-# ─────────────────────────────────────
 
 @app.route("/api/questions")
 def get_questions():
@@ -91,9 +89,7 @@ def get_questions():
 
     return jsonify(result)
 
-# ─────────────────────────────────────
 # РЕГИСТРАЦИЯ
-# ─────────────────────────────────────
 
 @app.route("/api/register", methods=["POST"])
 def register():
@@ -152,9 +148,7 @@ def register():
     else:
         return jsonify({"error": "Этот email уже зарегистрирован"}), 400
 
-# ─────────────────────────────────────
 # АВТОРИЗАЦИЯ
-# ─────────────────────────────────────
 
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -194,7 +188,6 @@ def change_pwd():
     if len(new_password) < 4:
         return jsonify({"error": "Пароль должен быть не менее 4 символов"}), 400
 
-    # Проверяем старый пароль
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT password FROM users WHERE id = ?", (user_id,))
@@ -211,9 +204,7 @@ def change_pwd():
     change_password(user_id, new_password)
     return jsonify({"message": "Пароль успешно изменён!"})
 
-# ─────────────────────────────────────
-# СТУДЕНТ — сдать тест
-# ─────────────────────────────────────
+# Отправка ответов студента.
 
 @app.route("/api/submit", methods=["POST"])
 def submit():
@@ -256,9 +247,7 @@ def submit():
         "time_taken":      time_taken
     })
 
-# ─────────────────────────────────────
 # РЕЗУЛЬТАТЫ
-# ─────────────────────────────────────
 
 @app.route("/api/results", methods=["GET"])
 def results():
@@ -283,9 +272,7 @@ def my_results(user_id):
         return jsonify({"error": "Результатов пока нет"}), 404
     return jsonify(dict(row))
 
-# ─────────────────────────────────────
 # КОМАНДЫ
-# ─────────────────────────────────────
 
 @app.route("/api/teams", methods=["GET"])
 def generate_teams():
@@ -337,9 +324,7 @@ def unpin_team(team_id):
 
     return jsonify({"message": "Команда откреплена"})
 
-# ─────────────────────────────────────
 # ПОРТФОЛИО
-# ─────────────────────────────────────
 
 @app.route("/api/portfolio/<int:user_id>", methods=["GET"])
 def portfolio_get(user_id):
@@ -428,9 +413,7 @@ def portfolio_delete_alias(item_id):
     delete_portfolio_item(item_id, user_id)
     return jsonify({"message": "Удалено"})
 
-# ─────────────────────────────────────
 # ПОДДЕРЖКА
-# ─────────────────────────────────────
 
 ALLOWED_SUPPORT_STATUSES = ("open", "in_progress", "completed")
 
@@ -465,7 +448,6 @@ def support_update(request_id):
     if not ok:
         return jsonify({"error": "Запрос не найден"}), 404
 
-    # Если тикет закрыт — отправляем письмо
     if status == "completed":
         ticket_info = get_ticket_with_user_email(request_id)
         if ticket_info and ticket_info.get("email"):
@@ -476,7 +458,7 @@ def support_update(request_id):
 
     return jsonify({"message": "Статус обновлён"})
 
-# Алиасы для совместимости с AdminPage который использует /api/tickets
+# Совместимость с интерфейсом администратора (/api/tickets).
 @app.route("/api/tickets", methods=["GET"])
 def get_tickets():
     rows = get_all_support_requests()
@@ -518,7 +500,7 @@ def update_ticket_status_alias(ticket_id):
 
     return jsonify({"message": "Статус обновлён"})
 
-# создание инвайтов для регистрации преподавателей
+# Приглашения преподавателей.
 @app.route("/api/invite/create", methods=["POST"])
 def create_invite():
     body  = request.get_json()
@@ -530,7 +512,6 @@ def create_invite():
 
     token = create_invite_token(email, role)
 
-    # Отправляем письмо с кодом
     try:
         from email_sender import send_invite_email
         send_invite_email(email, token, role)
@@ -544,9 +525,7 @@ def list_invites():
     rows = get_all_invite_tokens()
     return jsonify(rows)
 
-# ─────────────────────────────────────
 # АДМИН — управление пользователями
-# ─────────────────────────────────────
 
 @app.route("/api/users", methods=["GET"])
 def users():

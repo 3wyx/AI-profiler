@@ -15,7 +15,6 @@ const TestingPage = ({ user, onResultsReady }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  // новое состояние: начал ли пользователь тест (нажал кнопку "Начать")
   const [started, setStarted] = useState(false);
   const timerRef = useRef(null);
   const moduleStartTime = useRef({});
@@ -59,7 +58,6 @@ const TestingPage = ({ user, onResultsReady }) => {
           }
         }
       } catch (e) {
-        // Нет результатов — загружаем новые вопросы
       }
       loadQuestions();
     };
@@ -79,8 +77,6 @@ const TestingPage = ({ user, onResultsReady }) => {
           });
         });
         setAllQuestions(flat);
-        // таймер и время по модулям больше НЕ стартуем здесь —
-        // это будет сделано при нажатии кнопки "Начать тест"
         setLoading(false);
       })
       .catch(() => {
@@ -89,7 +85,6 @@ const TestingPage = ({ user, onResultsReady }) => {
       });
   };
 
-  // запускается только когда started === true (после нажатия кнопки)
   useEffect(() => {
     if (finished || loading || !started) return;
     timerRef.current = setInterval(() => {
@@ -119,13 +114,11 @@ const TestingPage = ({ user, onResultsReady }) => {
     setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }));
   };
 
-  // обработчик нажатия кнопки "Начать тест"
+  // Фиксируем начало теста и время прохождения модулей.
   const handleStart = () => {
-    // фиксируем время старта каждого модуля именно сейчас
     modules.forEach((mod) => {
       moduleStartTime.current[mod.id] = Date.now();
     });
-    // фиксируем общее время старта теста
     testStartTime.current = Date.now();
     setStarted(true);
   };
@@ -185,15 +178,13 @@ const TestingPage = ({ user, onResultsReady }) => {
     setFinished(false);
     setResults(null);
     setError('');
-    // возвращаем на экран приветствия, а не сразу в тест
     setStarted(false);
   };
 
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Загружаем вопросы...</div>;
   if (error && !finished) return <div style={{ padding: '2rem', color: 'red' }}>{error}</div>;
 
-  // экран приветствия перед стартом теста —
-  // показывается только если тест ещё не пройден и не начат
+  // Экран перед началом теста.
   if (!finished && !started) {
     return (
       <div className={styles.page}>

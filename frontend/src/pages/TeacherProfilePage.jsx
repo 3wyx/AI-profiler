@@ -32,7 +32,7 @@ const ScoreBar = ({ value }) => {
   );
 };
 
-// ─── Модальное окно с портфолио студента ─────────────────────────────────────
+// Модальное окно портфолио студента.
 const StudentModal = ({ student, onClose }) => {
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,6 @@ const StudentModal = ({ student, onClose }) => {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Шапка */}
         <div className={styles.modalHeader}>
           <div>
             <h2 className={styles.modalTitle}>{student.name}</h2>
@@ -60,13 +59,11 @@ const StudentModal = ({ student, onClose }) => {
           <button className={styles.modalClose} onClick={onClose}>✕</button>
         </div>
 
-        {/* Скоры */}
+        {/* Результаты теста */}
         <div className={styles.modalScores}>
           {Object.entries(MODULE_NAMES).map(([key, label]) => (
             <div key={key} className={styles.modalScoreRow}>
-              {/* название модуля */}
               <span className={styles.modalScoreLabel}>{label}</span>
-              {/* полоска с баллом */}
               <ScoreBar value={student[key]} />
             </div>
           ))}
@@ -75,13 +72,11 @@ const StudentModal = ({ student, onClose }) => {
               Профиль: <strong>{student.profile}</strong>
             </p>
           )}
-          {/* время прохождения теста, если оно сохранено */}
           {student.time_taken && (
             <p className={styles.modalProfile}>
               ⏱ Время прохождения: <strong>{student.time_taken}</strong>
             </p>
           )}
-          {/* дата теста: берём только YYYY-MM-DD из строки даты */}
           {student.created_at && (
             <p className={styles.modalProfile}>
               📅 Дата теста: <strong>{student.created_at.slice(0, 10)}</strong>
@@ -89,7 +84,7 @@ const StudentModal = ({ student, onClose }) => {
           )}
         </div>
 
-        {/* Рекомендации ИИ */}
+        {/* Рекомендации */}
         <div className={styles.modalPortfolio}>
           <h3 className={styles.modalPortfolioTitle}>Рекомендации ИИ</h3>
           {student.recommendations ? (
@@ -148,7 +143,7 @@ const StudentModal = ({ student, onClose }) => {
   );
 };
 
-// ─── Главная страница преподавателя ──────────────────────────────────────────
+// Страница преподавателя.
 const TeacherProfilePage = ({ user }) => {
   const [tab, setTab]                 = useState('students');
   const [results, setResults]         = useState([]);
@@ -162,7 +157,6 @@ const TeacherProfilePage = ({ user }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [pinnedTeams, setPinnedTeams] = useState([]);
 
-  // Загрузка результатов всех студентов
   useEffect(() => {
     fetch(`${API}/api/results`)
       .then((r) => r.json())
@@ -171,7 +165,6 @@ const TeacherProfilePage = ({ user }) => {
       .finally(() => setLoadingResults(false));
   }, []);
 
-  // Загрузка команд
   const loadTeams = () => {
     setLoadingTeams(true);
     setTeamsError('');
@@ -185,7 +178,7 @@ const TeacherProfilePage = ({ user }) => {
       .finally(() => setLoadingTeams(false));
   };
 
-  //Загрузка команд без ИИ (для формирования новых команд)
+  // Загружает команды без ИИ.
   const loadTeamsNoAI = () => {
   setLoadingTeams(true);
   setTeamsError('');
@@ -199,7 +192,6 @@ const TeacherProfilePage = ({ user }) => {
     .finally(() => setLoadingTeams(false));
   };
 
-  // Загрузка закрепленных команд
   const loadPinnedTeams = () => {
     if (!user?.id) return;
     fetch(`${API}/api/teams/pinned/${user.id}`)
@@ -248,9 +240,8 @@ const TeacherProfilePage = ({ user }) => {
     })
       .then((r) => r.json())
       .then((data) => {
-        // Удаляем из закрепленных
+        // Удаляем закрепленную команду и возвращаем ее в список новых.
         setPinnedTeams(pinnedTeams.filter((t) => t.pinnedId !== pinnedId));
-        // Добавляем обратно в новые команды
         setTeams([team, ...teams]);
       })
       .catch(() => {});
@@ -268,7 +259,7 @@ const TeacherProfilePage = ({ user }) => {
 
   return (
     <div className={styles.page}>
-      {/* Шапка профиля */}
+      {/* Профиль преподавателя */}
       <div className={styles.profileHeader}>
         <div className={styles.avatar}>
           <span className={styles.avatarIcon}>👤</span>
@@ -292,7 +283,7 @@ const TeacherProfilePage = ({ user }) => {
         </div>
       </div>
 
-      {/* Переключатель вкладок */}
+      {/* Вкладки */}
       <div className={styles.tabBar}>
         <button
           className={`${styles.tabBtn} ${tab === 'students' ? styles.tabActive : ''}`}
@@ -308,7 +299,7 @@ const TeacherProfilePage = ({ user }) => {
         </button>
       </div>
 
-      {/* Таблица результатов */}
+      {/* Результаты студентов */}
       {tab === 'students' && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -515,7 +506,7 @@ const TeacherProfilePage = ({ user }) => {
         </div>
       )}
 
-      {/* Модальное окно портфолио студента */}
+      {/* Портфолио студента */}
       {selectedStudent && (
         <StudentModal
           student={selectedStudent}

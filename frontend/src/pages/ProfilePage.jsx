@@ -3,7 +3,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import styles from './ProfilePage.module.css';
 
 const API = 'http://localhost:5000';
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 МБ
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'zip', 'rar'];
 
 const MODULE_NAMES = {
@@ -29,11 +29,11 @@ const formatFileSize = (bytes) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
 };
 
-// ─── Форма добавления ───────────────────────────────────────────────────────
+// Форма добавления элемента портфолио.
 const AddPortfolioForm = ({ userId, onAdded }) => {
   const [open, setOpen]     = useState(false);
   const [form, setForm]     = useState({ type: 'certificate', title: '', description: '', url: '' });
-  const [attachMode, setAttachMode] = useState('url'); // 'url' | 'file'
+  const [attachMode, setAttachMode] = useState('url');
   const [file, setFile]     = useState(null);
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -88,7 +88,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
 
       const res = await fetch(`${API}/api/portfolio`, {
         method: 'POST',
-        body: fd, // не указываем Content-Type — браузер сам выставит boundary
+        body: fd, // Браузер сам задает Content-Type с boundary.
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Ошибка'); return; }
@@ -136,7 +136,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
         onChange={(e) => setForm({ ...form, description: e.target.value })}
       />
 
-      {/* Переключатель: ссылка или файл */}
+      {/* Выбор типа вложения */}
       <div className={styles.attachToggle}>
         <button
           type="button"
@@ -199,7 +199,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
   );
 };
 
-// ─── Карточка портфолио ─────────────────────────────────────────────────────
+// Карточка элемента портфолио.
 const PortfolioItem = ({ item, userId, onDeleted }) => {
   const [deleting, setDeleting] = useState(false);
   const meta = TYPE_LABELS[item.type] || { label: item.type, emoji: '📎' };
@@ -219,7 +219,7 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
     }
   };
 
-  // Определяем, куда ведёт ссылка: на загруженный файл или на внешний url
+  // Ссылка на загруженный файл или внешний ресурс.
   const link = item.file_path
     ? `${API}/api/portfolio/file/${item.file_path}`
     : item.url || null;
@@ -264,7 +264,7 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
   );
 };
 
-// ─── Секция портфолио ───────────────────────────────────────────────────────
+// Секция портфолио.
 const PortfolioSection = ({ userId, editable }) => {
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(true);
@@ -310,7 +310,7 @@ const PortfolioSection = ({ userId, editable }) => {
   );
 };
 
-// ─── Главная страница профиля студента ──────────────────────────────────────
+// Страница профиля студента.
 const ProfilePage = ({ user, results }) => {
   const chartData = results
     ? Object.entries(results.scores).map(([key, value]) => ({
@@ -368,7 +368,7 @@ const ProfilePage = ({ user, results }) => {
           )}
         </div>
 
-        {/* Портфолио — студент может редактировать своё */}
+        {/* Портфолио */}
         <PortfolioSection userId={user?.id} editable={true} />
       </div>
     </div>
