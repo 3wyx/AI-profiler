@@ -50,7 +50,7 @@ start.bat
 ```bash
 cd backend
 python -m pip install -r requirements.txt
-cp .env.example .env   # укажите ваш OPENROUTER_API_KEY при необходимости
+cp .env.example .env   # нужно будет указать свои данные(ключи и пароли)
 python app.py
 ```
 Сервер будет доступен на `http://localhost:5000`.
