@@ -5,9 +5,12 @@
 frontend/node_modules/
 frontend/dist/
 
-# Python-мусор
+# Python-мусор и виртуальное окружение
 __pycache__/
 *.pyc
+.venv/
+venv/
+
 
 # База данных и загруженные файлы пользователей
 backend/profiler.db
