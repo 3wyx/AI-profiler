@@ -59,30 +59,31 @@ const TestingPage = ({ user, onResultsReady }) => {
         }
       } catch (e) {
       }
-      loadQuestions();
+      setLoading(false);
     };
     checkExistingResults();
   }, [user]);
 
-  const loadQuestions = () => {
-    fetch(`${API}/api/questions`)
-      .then((res) => res.json())
-      .then((data) => {
-        const mods = data.modules;
-        setModules(mods);
-        const flat = [];
-        mods.forEach((mod) => {
-          mod.questions.forEach((q) => {
-            flat.push({ ...q, module_id: mod.id });
-          });
+  const loadQuestions = async () => {
+    try {
+      const res = await fetch(`${API}/api/questions`);
+      const data = await res.json();
+      const mods = data.modules;
+      setModules(mods);
+      const flat = [];
+      mods.forEach((mod) => {
+        mod.questions.forEach((q) => {
+          flat.push({ ...q, module_id: mod.id });
         });
-        setAllQuestions(flat);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Не удалось загрузить вопросы. Проверьте что бэкенд запущен.');
-        setLoading(false);
       });
+      setAllQuestions(flat);
+      setLoading(false);
+      return mods;
+    } catch {
+      setError('Не удалось загрузить вопросы. Проверьте что бэкенд запущен.');
+      setLoading(false);
+      return [];
+    }
   };
 
   useEffect(() => {
@@ -114,9 +115,12 @@ const TestingPage = ({ user, onResultsReady }) => {
     setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }));
   };
 
-  // Фиксируем начало теста и время прохождения модулей.
-  const handleStart = () => {
-    modules.forEach((mod) => {
+  // Загрузка вопросов и запуск теста.
+  const handleStart = async () => {
+    setLoading(true);
+    const mods = await loadQuestions();
+    if (!mods.length) return;
+    mods.forEach((mod) => {
       moduleStartTime.current[mod.id] = Date.now();
     });
     testStartTime.current = Date.now();
@@ -182,7 +186,18 @@ const TestingPage = ({ user, onResultsReady }) => {
   };
 
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Загружаем вопросы...</div>;
-  if (error && !finished) return <div style={{ padding: '2rem', color: 'red' }}>{error}</div>;
+  if (error && !finished) return (
+    <div className={styles.page}>
+      <div className={styles.card} style={{ textAlign: 'center', padding: '2rem' }}>
+        <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>
+        {started && (
+          <button className={styles.navBtn} onClick={() => setError('')}>
+            ← Вернуться к тесту
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   // Экран перед началом теста.
   if (!finished && !started) {
@@ -191,7 +206,7 @@ const TestingPage = ({ user, onResultsReady }) => {
         <h1 className={styles.title}>Тестирование</h1>
         <div className={styles.card} style={{ textAlign: 'center', padding: '2rem' }}>
           <p style={{ fontSize: '16px', marginBottom: '8px' }}>
-            Вам предстоит ответить на <strong>{allQuestions.length}</strong> вопросов.
+            Вам предстоит ответить на вопросы по 5 модулям.
           </p>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '20px' }}>
             На прохождение теста отводится <strong>{formatTime(TOTAL_SECONDS)}</strong>.

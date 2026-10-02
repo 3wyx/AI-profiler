@@ -8,7 +8,7 @@ load_dotenv()
 
 client = OpenAI(
     api_key=os.environ["OPENROUTER_API_KEY"],
-    base_url="https://openrouter.ai/api/v1/chat/completions"
+    base_url="https://openrouter.ai/api/v1"
 )
     
 
@@ -65,7 +65,7 @@ def get_ai_recommendations(name, scores, profile, time_spent=None):
 """
 
     response = client.chat.completions.create(
-        model="openrouter/free",
+        model="openrouter/auto",
         messages=[
             {"role": "user", "content": prompt}
         ],
@@ -109,7 +109,7 @@ def get_teams(students):
 """
 
     response = client.chat.completions.create(
-        model="openrouter/free",
+        model="openrouter/auto",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=2500,
         temperature=0.7
@@ -166,7 +166,7 @@ def generate_questions():
 """
 
     response = client.chat.completions.create(
-        model="openrouter/free",
+        model="openrouter/auto",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=6000,
         temperature=0.9
