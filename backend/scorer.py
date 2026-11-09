@@ -1,22 +1,17 @@
 import json
 
-# Загружаем вопросы.
-with open("questions.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-
-# Подготавливаем данные вопросов для расчета баллов.
-question_map = {}
-for module in data["modules"]:
-    for q in module["questions"]:
-        question_map[q["id"]] = {
-            "correct": q["correct"],
-            "points": q["points"],
-            "module_id": module["id"],
-            "weight": module["weight"]
+def build_question_map(questions_data):
+    # Из набора вопросов одной попытки делаем словарь для подсчёта баллов.
+    return {
+        q["id"]: {
+            "correct": q["correct"], "points": q["points"],
+            "module_id": module["id"], "weight": module["weight"]
         }
+        for module in questions_data["modules"] for q in module["questions"]
+    }
 
 # Расчет баллов по модулям.
-def calculate_scores(answers):
+def calculate_scores(answers, question_map):
     # answers содержит ID вопросов и индексы выбранных вариантов.
 
     raw_scores = {

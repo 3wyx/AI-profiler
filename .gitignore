@@ -20,4 +20,4 @@ backend/uploads/
 .vscode/
 ~$*
 *.docx
-
+backend/.secret_key

@@ -5,3 +5,4 @@ Werkzeug==3.0.4
 python-dotenv==1.2.3
 requests
 httpx<0.28
+waitress==3.0.2
