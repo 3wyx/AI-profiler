@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useDialog } from '../components/useDialog';
+import { UserRound, Mail, ChartNoAxesCombined, UsersRound, FolderOpen, FileText, Paperclip, X, Pin, PinOff, Sparkles, Clock3, CalendarDays, Settings2 } from 'lucide-react';
 import styles from './TeacherProfilePage.module.css';
 
 const API = '';
+
+const fetchTeams = (withoutAI = false) => fetch(`${API}/api/teams${withoutAI ? '/no-ai' : ''}`)
+  .then(async (response) => {
+    const data = await response.json();
+    if (!response.ok || data.error) throw new Error(data.error || 'Не удалось загрузить команды');
+    return data.teams || [];
+  });
 
 const MODULE_NAMES = {
   algo: 'Алгоритмы',
@@ -22,7 +31,7 @@ const SCORE_MAX = 100;
 const normalizeGroup = (g) => (g || '').replace(/\s+/g, '').toUpperCase();
 
 const ScoreBar = ({ value }) => {
-  const pct   = Math.min(100, Math.round((value / SCORE_MAX) * 100));
+  const pct = Math.max(0, Math.min(100, Math.round(((Number(value) || 0) / SCORE_MAX) * 100)));
   const color = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--accent)' : 'var(--error)';
   return (
     <div className={styles.barWrap}>
@@ -34,29 +43,36 @@ const ScoreBar = ({ value }) => {
 
 // Модальное окно портфолио студента.
 const StudentModal = ({ student, onClose }) => {
+  const dialogRef = useDialog(Boolean(student), onClose);
   const [items, setItems]     = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(student?.user_id));
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!student?.user_id) { setLoading(false); return; }
+    if (!student?.user_id) return;
+    let active = true;
     fetch(`${API}/api/portfolio/${student.user_id}`)
-      .then((r) => r.json())
-      .then((data) => setItems(Array.isArray(data) ? data : []))
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
-  }, [student]);
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить портфолио');
+        return response.json();
+      })
+      .then((data) => { if (active) setItems(Array.isArray(data) ? data : []); })
+      .catch((err) => { if (active) setError(err.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [student?.user_id]);
 
   if (!student) return null;
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-label="Профиль студента" onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
             <h2 className={styles.modalTitle}>{student.name}</h2>
             <span className={styles.modalSub}>{student.login}</span>
           </div>
-          <button className={styles.modalClose} onClick={onClose}>✕</button>
+          <button className={styles.modalClose} onClick={onClose} aria-label="Закрыть"><X size={18} /></button>
         </div>
 
         {/* Результаты теста */}
@@ -74,12 +90,12 @@ const StudentModal = ({ student, onClose }) => {
           )}
           {student.time_taken && (
             <p className={styles.modalProfile}>
-              ⏱ Время прохождения: <strong>{student.time_taken}</strong>
+              <Clock3 size={15} aria-hidden="true" /> Время прохождения: <strong>{student.time_taken}</strong>
             </p>
           )}
           {student.created_at && (
             <p className={styles.modalProfile}>
-              📅 Дата теста: <strong>{student.created_at.slice(0, 10)}</strong>
+              <CalendarDays size={15} aria-hidden="true" /> Дата теста: <strong>{student.created_at.slice(0, 10)}</strong>
             </p>
           )}
         </div>
@@ -99,21 +115,23 @@ const StudentModal = ({ student, onClose }) => {
         {/* Портфолио */}
         <div className={styles.modalPortfolio}>
           <h3 className={styles.modalPortfolioTitle}>Портфолио</h3>
-          {loading ? (
+          {error ? (
+            <p className={styles.modalEmpty} role="alert">{error}</p>
+          ) : loading ? (
             <p className={styles.modalEmpty}>Загрузка...</p>
           ) : items.length === 0 ? (
             <p className={styles.modalEmpty}>Студент ещё не добавил работы.</p>
           ) : (
             <div className={styles.modalItems}>
               {items.map((item) => {
-                const meta = TYPE_LABELS[item.type] || { label: item.type, emoji: '📎' };
-                const link = item.file_path
-                  ? `${API}/api/portfolio/file/${item.file_path}`
-                  : item.url || null;
+                const meta = TYPE_LABELS[item.type] || { label: item.type };
+                const link = item.file_url
+                  ? `${API}${item.file_url}`
+                  : item.link || item.url || null;
 
                 return (
                   <div key={item.id} className={styles.modalItem}>
-                    <span className={styles.modalItemEmoji}>{meta.emoji}</span>
+                    <FileText size={22} className={styles.modalItemIcon} aria-hidden="true" />
                     <div className={styles.modalItemBody}>
                       <div className={styles.modalItemTitle}>
                         {link
@@ -127,7 +145,7 @@ const StudentModal = ({ student, onClose }) => {
                       </div>
                       {item.file_path && (
                         <div className={styles.modalItemAttachment}>
-                          📎 <a href={link} target="_blank" rel="noreferrer" className={styles.modalItemLink}>{item.file_name}</a>
+                          <Paperclip size={14} aria-hidden="true" /> <a href={link} target="_blank" rel="noreferrer" className={styles.modalItemLink}>{item.file_name}</a>
                         </div>
                       )}
                       <div className={styles.modalItemDate}>{item.created_at?.slice(0, 10)}</div>
@@ -151,100 +169,104 @@ const TeacherProfilePage = ({ user }) => {
   const [loadingResults, setLoadingResults] = useState(true);
   const [loadingTeams, setLoadingTeams]     = useState(false);
   const [teamsError, setTeamsError]   = useState('');
+  const [resultsError, setResultsError] = useState('');
   const [search, setSearch]           = useState('');
   const [filterProfile, setFilterProfile] = useState('');
   const [filterGroup, setFilterGroup] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [pinnedTeams, setPinnedTeams] = useState([]);
+  const closeStudent = useCallback(() => setSelectedStudent(null), []);
 
   useEffect(() => {
+    let active = true;
     fetch(`${API}/api/results`)
-      .then((r) => r.json())
-      .then((data) => setResults(Array.isArray(data) ? data : []))
-      .catch(() => setResults([]))
-      .finally(() => setLoadingResults(false));
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить результаты студентов');
+        return response.json();
+      })
+      .then((data) => { if (active) setResults(Array.isArray(data) ? data : []); })
+      .catch((err) => { if (active) setResultsError(err.message); })
+      .finally(() => { if (active) setLoadingResults(false); });
+    return () => { active = false; };
   }, []);
 
-  const loadTeams = () => {
+  const generateTeams = (withoutAI = false) => {
     setLoadingTeams(true);
     setTeamsError('');
-    fetch(`${API}/api/teams`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.error) { setTeamsError(data.error); setTeams([]); }
-        else { setTeams(data.teams || []); }
-      })
-      .catch(() => setTeamsError('Не удалось загрузить команды'))
+    fetchTeams(withoutAI)
+      .then(setTeams)
+      .catch((err) => setTeamsError(err.message))
       .finally(() => setLoadingTeams(false));
   };
 
-  // Загружает команды без ИИ.
-  const loadTeamsNoAI = () => {
-  setLoadingTeams(true);
-  setTeamsError('');
-  fetch(`${API}/api/teams/no-ai`)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.error) { setTeamsError(data.error); setTeams([]); }
-      else { setTeams(data.teams || []); }
-    })
-    .catch(() => setTeamsError('Не удалось загрузить команды'))
-    .finally(() => setLoadingTeams(false));
-  };
-
-  const loadPinnedTeams = () => {
-    if (!user?.id) return;
-    fetch(`${API}/api/teams/pinned/${user.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.pinned) {
-          setPinnedTeams(data.pinned.map(p => ({ ...p.team, pinnedId: p.id })));
-        }
-      })
-      .catch(() => {});
-  };
+  const loadTeams = () => generateTeams();
+  const loadTeamsNoAI = () => generateTeams(true);
 
   const profileOptions = [...new Set(results.map((r) => r.profile).filter(Boolean))];
   const groupOptions = [...new Set(results.map((r) => normalizeGroup(r.group_number)).filter(Boolean))].sort();
   
   useEffect(() => {
-    if (tab === 'teams') {
-      loadTeams();
-      loadPinnedTeams();
+    if (tab !== 'teams') return;
+    let active = true;
+    fetchTeams()
+      .then((data) => { if (active) setTeams(data); })
+      .catch((err) => { if (active) setTeamsError(err.message); })
+      .finally(() => { if (active) setLoadingTeams(false); });
+    if (user?.id) {
+      fetch(`${API}/api/teams/pinned/${user.id}`)
+        .then((response) => {
+          if (!response.ok) throw new Error('Не удалось загрузить закреплённые команды');
+          return response.json();
+        })
+        .then((data) => {
+          if (active && data.pinned) setPinnedTeams(data.pinned.map((entry) => ({ ...entry.team, pinnedId: entry.id })));
+        })
+        .catch((err) => { if (active) setTeamsError(err.message); });
     }
+    return () => { active = false; };
   }, [tab, user?.id]);
 
   const handlePinTeam = (team, index) => {
     if (!user?.id) return;
+    setTeamsError('');
     fetch(`${API}/api/teams/pin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id, team }),
     })
-      .then((r) => r.json())
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Не удалось изменить закрепление команды');
+        return data;
+      })
       .then((data) => {
         if (data.id) {
-          setPinnedTeams([{ ...team, pinnedId: data.id }, ...pinnedTeams]);
-          setTeams(teams.filter((_, i) => i !== index));
+          setPinnedTeams((current) => [{ ...team, pinnedId: data.id }, ...current]);
+          setTeams((current) => current.filter((_, i) => i !== index));
         }
       })
-      .catch(() => {});
+      .catch((err) => setTeamsError(err.message));
   };
 
   const handleUnpinTeam = (pinnedId, team) => {
     if (!user?.id) return;
+    setTeamsError('');
     fetch(`${API}/api/teams/pin/${pinnedId}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id }),
     })
-      .then((r) => r.json())
-      .then((data) => {
-        // Удаляем закрепленную команду и возвращаем ее в список новых.
-        setPinnedTeams(pinnedTeams.filter((t) => t.pinnedId !== pinnedId));
-        setTeams([team, ...teams]);
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Не удалось изменить закрепление команды');
+        return data;
       })
-      .catch(() => {});
+      .then(() => {
+        // Удаляем закрепленную команду и возвращаем ее в список новых.
+        setPinnedTeams((current) => current.filter((t) => t.pinnedId !== pinnedId));
+        setTeams((current) => [team, ...current]);
+      })
+      .catch((err) => setTeamsError(err.message));
   };
 
     const filtered = results.filter((r) => {
@@ -262,13 +284,14 @@ const TeacherProfilePage = ({ user }) => {
       {/* Профиль преподавателя */}
       <div className={styles.profileHeader}>
         <div className={styles.avatar}>
-          <span className={styles.avatarIcon}>👤</span>
+          <UserRound size={28} strokeWidth={1.4} aria-hidden="true" />
         </div>
         <div className={styles.profileInfo}>
+          <p className={styles.eyebrow}>Кабинет преподавателя</p>
           <h1 className={styles.profileName}>{teacherName}</h1>
           <div className={styles.profileMeta}>
             <span className={styles.badge}>Преподаватель</span>
-            {user?.login && <span className={styles.metaItem}>✉ {user.login}</span>}
+            {user?.login && <span className={styles.metaItem}><Mail size={15} aria-hidden="true" /> {user.login}</span>}
           </div>
         </div>
         <div className={styles.statsRow}>
@@ -288,14 +311,16 @@ const TeacherProfilePage = ({ user }) => {
         <button
           className={`${styles.tabBtn} ${tab === 'students' ? styles.tabActive : ''}`}
           onClick={() => setTab('students')}
+          aria-pressed={tab === 'students'}
         >
-          📊 Результаты студентов
+          <ChartNoAxesCombined size={18} aria-hidden="true" /> Результаты студентов
         </button>
         <button
           className={`${styles.tabBtn} ${tab === 'teams' ? styles.tabActive : ''}`}
-          onClick={() => setTab('teams')}
+          onClick={() => { if (tab !== 'teams') { setLoadingTeams(true); setTeamsError(''); setTab('teams'); } }}
+          aria-pressed={tab === 'teams'}
         >
-          👥 Команды
+          <UsersRound size={18} aria-hidden="true" /> Команды
         </button>
       </div>
 
@@ -307,13 +332,15 @@ const TeacherProfilePage = ({ user }) => {
             <div className={styles.filters}>
               <input
                 type="text"
-                placeholder="🔍 Поиск по имени или логину..."
+                placeholder="Имя или логин студента"
+                aria-label="Поиск студентов"
                 className={styles.searchInput}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <select
                 className={styles.filterSelect}
+                aria-label="Фильтр по профилю"
                 value={filterProfile}
                 onChange={(e) => setFilterProfile(e.target.value)}
               >
@@ -324,6 +351,7 @@ const TeacherProfilePage = ({ user }) => {
               </select>
               <select
                 className={styles.filterSelect}
+                aria-label="Фильтр по группе"
                 value={filterGroup}
                 onChange={(e) => setFilterGroup(e.target.value)}
               >
@@ -335,7 +363,9 @@ const TeacherProfilePage = ({ user }) => {
             </div>
           </div>
 
-          {loadingResults ? (
+          {resultsError ? (
+            <div className={`${styles.emptyState} ${styles.errorState}`} role="alert">{resultsError}</div>
+          ) : loadingResults ? (
             <div className={styles.loadingState}>
               <div className={styles.spinner} />
               <span>Загрузка данных...</span>
@@ -343,8 +373,8 @@ const TeacherProfilePage = ({ user }) => {
           ) : filtered.length === 0 ? (
             <div className={styles.emptyState}>
               {results.length === 0
-                ? '📭 Ни один студент ещё не прошёл тестирование'
-                : '🔍 Ничего не найдено по вашему запросу'}
+                ? 'Ни один студент ещё не прошёл тестирование'
+                : 'Ничего не найдено по вашему запросу'}
             </div>
           ) : (
             <div className={styles.tableWrap}>
@@ -382,7 +412,7 @@ const TeacherProfilePage = ({ user }) => {
                           className={styles.portfolioBtn}
                           onClick={() => setSelectedStudent(row)}
                         >
-                          📂 Смотреть
+                          <FolderOpen size={16} aria-hidden="true" /> Смотреть
                         </button>
                       </td>
                     </tr>
@@ -399,23 +429,23 @@ const TeacherProfilePage = ({ user }) => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Команды студентов</h2>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button className={styles.refreshBtn} onClick={loadTeams} disabled={loadingTeams}>
-                {loadingTeams ? 'Загрузка...' : 'Собрать с ИИ'}
+            <div className={styles.actions}>
+              <button className={styles.primaryBtn} onClick={loadTeams} disabled={loadingTeams}>
+                <Sparkles size={17} aria-hidden="true" /> {loadingTeams ? 'Загрузка...' : 'Собрать с ИИ'}
               </button>
               <button className={styles.refreshBtn} onClick={loadTeamsNoAI} disabled={loadingTeams}>
-                ⚙️ Собрать без ИИ
+                <Settings2 size={17} aria-hidden="true" /> Собрать без ИИ
               </button>
             </div>
           </div>
 
-          {teamsError && <div className={styles.emptyState}>⚠ {teamsError}</div>}
+          {teamsError && <div className={`${styles.emptyState} ${styles.errorState}`} role="alert">{teamsError}</div>}
 
           {pinnedTeams.length > 0 && (
             <div>
               <h3 className={styles.subsectionTitle}>Закрепленные команды</h3>
               <div className={styles.teamsGrid}>
-                {pinnedTeams.map((team, ti) => (
+                {pinnedTeams.map((team) => (
                   <div key={`pinned-${team.pinnedId}`} className={`${styles.teamCard} ${styles.teamCardPinned}`}>
                     <div className={styles.teamHeader}>
                       <div style={{ flex: 1 }}>
@@ -427,7 +457,7 @@ const TeacherProfilePage = ({ user }) => {
                         onClick={() => handleUnpinTeam(team.pinnedId, team)}
                         title="Открепить команду"
                       >
-                        ✕
+                        <PinOff size={18} aria-hidden="true" />
                       </button>
                     </div>
                     <div className={styles.memberList}>
@@ -477,7 +507,7 @@ const TeacherProfilePage = ({ user }) => {
                         onClick={() => handlePinTeam(team, ti)}
                         title="Закрепить команду"
                       >
-                        ★
+                        <Pin size={18} aria-hidden="true" />
                       </button>
                     </div>
                     <div className={styles.memberList}>
@@ -510,7 +540,7 @@ const TeacherProfilePage = ({ user }) => {
       {selectedStudent && (
         <StudentModal
           student={selectedStudent}
-          onClose={() => setSelectedStudent(null)}
+          onClose={closeStudent}
         />
       )}
     </div>

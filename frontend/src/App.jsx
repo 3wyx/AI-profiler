@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
@@ -7,10 +7,14 @@ import AdminPage from './pages/AdminPage';
 import TestingPage from './pages/TestingPage';
 import ResultsPage from './pages/ResultsPage';
 import SettingsPage from './pages/SettingsPage';
+import ActivityStats from './pages/ActivityStats';
+import { trackEvent } from './activity';
+import { setAuthToken } from './authFetch';
 import { ThemeProvider } from './context/ThemeContext';
 import './styles/theme.css';
+import './App.css';
 
-const API = 'http://localhost:5000';
+const API = '';
 
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,13 +47,35 @@ function AppContent() {
             timeTaken:       result.time_taken || null,
           });
         }
-      } catch (e) {
+      } catch {
         console.log('Результатов пока нет');
       }
     }
   };
 
+  // Статистика активности: какие экраны открывает студент.
+  // Тестирование считаем «расписанием», результаты с рекомендациями ИИ — «ботом».
+  useEffect(() => {
+    if (!isAuthenticated || userRole !== 'student' || !userData) return;
+    if (activeTab === 'testing') trackEvent('schedule_view', userData.id);
+    if (activeTab === 'results') trackEvent('bot_interaction', userData.id);
+  }, [activeTab, isAuthenticated, userRole, userData]);
+
+  // Если токен истёк, сервер вернёт 401, и мы возвращаем пользователя на экран входа.
+  useEffect(() => {
+    const onExpired = () => {
+      setIsAuthenticated(false);
+      setUserRole(null);
+      setUserData(null);
+      setLastResults(null);
+      setActiveTab('profile');
+    };
+    window.addEventListener('auth-expired', onExpired);
+    return () => window.removeEventListener('auth-expired', onExpired);
+  }, []);
+
   const handleLogout = () => {
+    setAuthToken(null);
     setIsAuthenticated(false);
     setUserRole(null);
     setUserData(null);
@@ -68,15 +94,19 @@ function AppContent() {
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
         userRole={userRole}
+        user={userData}
       />
-      <main className="main-content">
+      <main className="main-content" id="main" tabIndex={-1}>
         {activeTab === 'profile' && (
           userRole === 'teacher'
             ? <TeacherProfilePage user={userData} />
-            : <ProfilePage user={userData} results={lastResults} />
+            : <ProfilePage user={userData} results={lastResults} onStartTest={() => setActiveTab('testing')} onViewResults={() => setActiveTab('results')} />
         )}
         {activeTab === 'requests' && userRole === 'admin' && (
           <AdminPage user={userData} />
+        )}
+        {activeTab === 'activity' && userRole === 'admin' && (
+          <ActivityStats adminId={userData.id} />
         )}
         {activeTab === 'testing' && userRole === 'student' && (
           <TestingPage
@@ -93,7 +123,7 @@ function AppContent() {
           />
         )}
         {activeTab === 'results' && userRole === 'student' && (
-          <ResultsPage results={lastResults} />
+          <ResultsPage results={lastResults} onStartTest={() => setActiveTab('testing')} />
         )}
         {activeTab === 'settings' && (
           <SettingsPage user={userData} />

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useDialog } from '../components/useDialog';
+import { X, KeyRound, RefreshCw, Check, Clock3, Circle, LoaderCircle } from 'lucide-react';
 import styles from './AdminPage.module.css';
 
 const API = '';
 
 const STATUS_META = {
-  open:        { label: 'Открыт',       emoji: '🔴', cls: 'statusOpen' },
-  in_progress: { label: 'В разработке', emoji: '🟡', cls: 'statusProgress' },
-  completed:   { label: 'Завершён',     emoji: '🟢', cls: 'statusDone' },
+  open:        { label: 'Открыт',       icon: Circle, cls: 'statusOpen' },
+  in_progress: { label: 'В разработке', icon: LoaderCircle, cls: 'statusProgress' },
+  completed:   { label: 'Завершён',     icon: Check, cls: 'statusDone' },
 };
 
 const ROLE_LABELS = {
@@ -25,6 +27,7 @@ const formatDate = (dateStr) => {
 
 // Модальное окно смены логина и пароля.
 const CredentialsModal = ({ userId, userName, onClose }) => {
+  const dialogRef = useDialog(true, onClose);
   const [newLogin, setNewLogin]       = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError]             = useState('');
@@ -62,13 +65,13 @@ const CredentialsModal = ({ userId, userName, onClose }) => {
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-label="Смена данных пользователя" onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
             <h2 className={styles.modalTitle}>Смена данных</h2>
             <span className={styles.modalSub}>{userName}</span>
           </div>
-          <button className={styles.modalClose} onClick={onClose}>✕</button>
+          <button className={styles.modalClose} onClick={onClose} aria-label="Закрыть"><X size={18} /></button>
         </div>
 
         {success ? (
@@ -83,17 +86,21 @@ const CredentialsModal = ({ userId, userName, onClose }) => {
             </p>
             <div className={styles.credFields}>
               <div className={styles.credField}>
-                <label className={styles.credLabel}>Новый логин</label>
+                <label className={styles.credLabel} htmlFor="new-login">Новый логин</label>
                 <input
                   className={styles.credInput}
+                  id="new-login"
+                  autoComplete="off"
                   placeholder="Введите новый логин..."
                   value={newLogin}
                   onChange={(e) => setNewLogin(e.target.value)}
                 />
               </div>
               <div className={styles.credField}>
-                <label className={styles.credLabel}>Новый пароль</label>
+                <label className={styles.credLabel} htmlFor="new-password">Новый пароль</label>
                 <input
+                  id="new-password"
+                  autoComplete="new-password"
                   type="password"
                   className={styles.credInput}
                   placeholder="Введите новый пароль..."
@@ -117,16 +124,18 @@ const CredentialsModal = ({ userId, userName, onClose }) => {
 };
 
 // Модальное окно запроса поддержки.
-const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
+const RequestModal = ({ request, onClose, onStatusChange, updating, error }) => {
   const [showCredentials, setShowCredentials] = useState(false);
   const [replyText, setReplyText] = useState('');
+  const closeCredentials = useCallback(() => setShowCredentials(false), []);
+  const dialogRef = useDialog(Boolean(request) && !showCredentials, onClose);
 
   if (!request) return null;
 
   return (
     <>
       <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div ref={dialogRef} tabIndex={-1} inert={showCredentials} aria-hidden={showCredentials || undefined} className={styles.modal} role="dialog" aria-modal={showCredentials ? undefined : "true"} aria-label="Запрос поддержки" onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalHeader}>
             <div>
               <h2 className={styles.modalTitle}>{request.subject}</h2>
@@ -134,7 +143,7 @@ const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
                 {request.user_name} · {ROLE_LABELS[request.user_role] || request.user_role}
               </span>
             </div>
-            <button className={styles.modalClose} onClick={onClose}>✕</button>
+            <button className={styles.modalClose} onClick={onClose} aria-label="Закрыть"><X size={18} /></button>
           </div>
 
           <div className={styles.modalBody}>
@@ -143,27 +152,29 @@ const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
           </div>
 
           <div className={styles.modalBody}>
-            <label className={styles.credLabel}>Комментарий для письма (необязательно):</label>
+            <label className={styles.credLabel} htmlFor="support-reply">Комментарий для письма (необязательно):</label>
             <textarea
+              id="support-reply"
               className={styles.credInput}
               style={{ minHeight: '60px', width: '100%' }}
-              placeholder="Например: ваш новый пароль — xyz123"
+              placeholder="Добавьте ответ пользователю"
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
             />
           </div>
 
           <div className={styles.modalFooter}>
+            {error && <p className={styles.credError} role="alert">{error}</p>}
             <span className={styles.modalFooterLabel}>Статус запроса:</span>
             <div className={styles.statusButtons}>
-              {Object.entries(STATUS_META).map(([key, { label, emoji }]) => (
+              {Object.entries(STATUS_META).map(([key, { label, icon: StatusIcon }]) => (
                 <button
                   key={key}
                   className={`${styles.statusOption} ${request.status === key ? styles.statusOptionActive : ''}`}
                   onClick={() => onStatusChange(request.id, key, replyText)}
                   disabled={updating}
                 >
-                  {emoji} {label}
+                  <StatusIcon size={15} aria-hidden="true" /> {label}
                 </button>
               ))}
             </div>
@@ -178,7 +189,7 @@ const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
         <CredentialsModal
           userId={request.user_id}
           userName={request.user_name}
-          onClose={() => setShowCredentials(false)}
+          onClose={closeCredentials}
         />
       )}
     </>
@@ -187,6 +198,7 @@ const RequestModal = ({ request, onClose, onStatusChange, updating }) => {
 
 // Модальное окно приглашений преподавателей.
 const InviteModal = ({ onClose }) => {
+  const dialogRef = useDialog(true, onClose);
   const [email, setEmail]     = useState('');
   const [invites, setInvites] = useState([]);
   const [error, setError]     = useState('');
@@ -195,12 +207,25 @@ const InviteModal = ({ onClose }) => {
 
   const loadInvites = () => {
     fetch(`${API}/api/invite/list`)
-      .then((r) => r.json())
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить приглашения');
+        return response.json();
+      })
       .then((data) => setInvites(Array.isArray(data) ? data : []))
-      .catch(() => setInvites([]));
+      .catch((err) => setError(err.message));
   };
 
-  useEffect(() => { loadInvites(); }, []);
+  useEffect(() => {
+    let active = true;
+    fetch(`${API}/api/invite/list`)
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить приглашения');
+        return response.json();
+      })
+      .then((data) => { if (active) setInvites(Array.isArray(data) ? data : []); })
+      .catch((err) => { if (active) setError(err.message); });
+    return () => { active = false; };
+  }, []);
 
   const handleCreate = async () => {
     if (!email.trim()) { setError('Укажите email преподавателя'); return; }
@@ -227,31 +252,32 @@ const InviteModal = ({ onClose }) => {
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-label="Приглашения преподавателей" onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>Коды приглашения для преподавателей</h2>
-          <button className={styles.modalClose} onClick={onClose}>✕</button>
+          <button className={styles.modalClose} onClick={onClose} aria-label="Закрыть"><X size={18} /></button>
         </div>
 
         <div className={styles.modalBody}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <div className={styles.inviteForm}>
             <input
               type="email"
               className={styles.searchInput}
+              aria-label="Email преподавателя"
               placeholder="Email преподавателя"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button className={styles.refreshBtn} onClick={handleCreate} disabled={loading}>
+            <button className={styles.primaryBtn} onClick={handleCreate} disabled={loading}>
               {loading ? 'Создаём...' : 'Создать код'}
             </button>
           </div>
 
-          {error && <p style={{ color: 'red', fontSize: '13px' }}>{error}</p>}
+          {error && <p className={styles.credError} role="alert">{error}</p>}
 
           {lastToken && (
-            <p style={{ fontSize: '14px', marginBottom: '12px' }}>
-              Код создан: <strong style={{ letterSpacing: '2px' }}>{lastToken}</strong> (также отправлен на почту)
+            <p className={styles.tokenMessage}>
+              Код создан: <strong>{lastToken}</strong> (также отправлен на почту)
             </p>
           )}
 
@@ -273,7 +299,7 @@ const InviteModal = ({ onClose }) => {
                     <tr key={inv.id} className={i % 2 === 0 ? styles.trEven : styles.trOdd}>
                       <td className={styles.td}><strong>{inv.token}</strong></td>
                       <td className={styles.td}>{inv.email}</td>
-                      <td className={styles.td}>{inv.used ? '✅ Использован' : '🕓 Ожидает'}</td>
+                      <td className={styles.td}>{inv.used ? <span className={styles.inviteStatus}><Check size={15} /> Использован</span> : <span className={styles.inviteStatus}><Clock3 size={15} /> Ожидает</span>}</td>
                       <td className={`${styles.td} ${styles.tdMuted}`}>{formatDate(inv.created_at)}</td>
                     </tr>
                   ))}
@@ -295,32 +321,53 @@ const AdminPage = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [selected, setSelected]         = useState(null);
   const [updatingId, setUpdatingId]     = useState(null);
-  const [replyText, setReplyText]       = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showInvites, setShowInvites]   = useState(false);
+  const closeRequest = useCallback(() => setSelected(null), []);
+  const closeInvites = useCallback(() => setShowInvites(false), []);
 
   const load = () => {
     setLoading(true);
+    setLoadError('');
     fetch(`${API}/api/support`)
-      .then((r) => r.json())
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить запросы');
+        return response.json();
+      })
       .then((data) => setRequests(Array.isArray(data) ? data : []))
-      .catch(() => setRequests([]))
+      .catch((err) => setLoadError(err.message))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    let active = true;
+    fetch(`${API}/api/support`)
+      .then((response) => {
+        if (!response.ok) throw new Error('Не удалось загрузить запросы');
+        return response.json();
+      })
+      .then((data) => { if (active) setRequests(Array.isArray(data) ? data : []); })
+      .catch((err) => { if (active) setLoadError(err.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const handleStatusChange = async (id, status, adminReply = '') => {
     setUpdatingId(id);
+    setLoadError('');
     try {
       const res = await fetch(`${API}/api/support/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, admin_reply: adminReply }),
       });
+      if (!res.ok) throw new Error('Не удалось изменить статус запроса');
       if (res.ok) {
         setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
         setSelected((prev) => (prev && prev.id === id ? { ...prev, status } : prev));
       }
+    } catch (err) {
+      setLoadError(err.message);
     } finally {
       setUpdatingId(null);
     }
@@ -343,11 +390,16 @@ const AdminPage = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Панель администратора</h1>
-
-      <button className={styles.refreshBtn} onClick={() => setShowInvites(true)} style={{ marginBottom: '1rem' }}>
-        Коды приглашения
-      </button>
+      <div className={styles.pageHeader}>
+        <div>
+          <p className={styles.eyebrow}>Кабинет администратора</p>
+          <h1 className={styles.title}>Центр запросов</h1>
+          <p className={styles.description}>Обращения пользователей и приглашения преподавателей.</p>
+        </div>
+        <button className={styles.primaryBtn} onClick={() => setShowInvites(true)}>
+          <KeyRound size={18} aria-hidden="true" /> Коды приглашения
+        </button>
+      </div>
 
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
@@ -369,17 +421,20 @@ const AdminPage = () => {
       </div>
 
       <div className={styles.section}>
+        {loadError && <p className={styles.credError} role="alert">{loadError}</p>}
         <div className={styles.sectionHeader}>
           <div className={styles.filters}>
             <input
               type="text"
-              placeholder="🔍 Поиск по имени или теме..."
+              aria-label="Поиск по имени или теме"
+              placeholder="Имя или тема обращения"
               className={styles.searchInput}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <select
               className={styles.filterSelect}
+              aria-label="Фильтр по статусу"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
@@ -390,7 +445,7 @@ const AdminPage = () => {
             </select>
           </div>
           <button className={styles.refreshBtn} onClick={load} disabled={loading}>
-            {loading ? 'Загрузка...' : 'Обновить'}
+            <RefreshCw size={16} aria-hidden="true" /> {loading ? 'Загрузка...' : 'Обновить'}
           </button>
         </div>
 
@@ -431,12 +486,13 @@ const AdminPage = () => {
                         <span className={styles.roleBadge}>{ROLE_LABELS[r.user_role] || r.user_role}</span>
                       </td>
                       <td className={styles.td}>
-                        <span className={styles.subject}>{r.subject}</span>
+                        <button className={styles.subject} onClick={() => setSelected(r)}>{r.subject}</button>
                       </td>
                       <td className={`${styles.td} ${styles.tdMuted}`}>{formatDate(r.created_at)}</td>
                       <td className={styles.td} onClick={(e) => e.stopPropagation()}>
                         <select
                           className={`${styles.statusSelect} ${styles[meta.cls]}`}
+                          aria-label={`Статус запроса: ${r.subject}`}
                           value={r.status}
                           onChange={(e) => handleStatusChange(r.id, e.target.value)}
                           disabled={updatingId === r.id}
@@ -457,12 +513,13 @@ const AdminPage = () => {
 
       <RequestModal
         request={selected}
-        onClose={() => setSelected(null)}
+        onClose={closeRequest}
         onStatusChange={handleStatusChange}
         updating={selected && updatingId === selected.id}
+        error={loadError}
       />
 
-      {showInvites && <InviteModal onClose={() => setShowInvites(false)} />}
+      {showInvites && <InviteModal onClose={closeInvites} />}
     </div>
   );
 };

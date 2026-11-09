@@ -1,12 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { ThemeContext } from '../context/ThemeContext';
+import { useState, useContext } from 'react';
+import { ArrowRight, Moon, Sun } from 'lucide-react';
+import { ThemeContext } from '../context/theme-context';
+import AsciiStar from '../components/AsciiStar';
 import styles from './AuthPage.module.css';
 import RegisterPage from './RegisterPage';
-import toggleLight from '../assets/toggle-light.png';
-import toggleDark from '../assets/toggle-dark.png';
-import bgImage from '../assets/cosmos_1567965016.jpeg';
 
 const API = '';
+const roles = [
+  { value: 'student', label: 'Студент' },
+  { value: 'teacher', label: 'Преподаватель' },
+  { value: 'admin', label: 'Админ' },
+];
 
 const AuthPage = ({ onLogin }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -21,120 +25,81 @@ const AuthPage = ({ onLogin }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await fetch(`${API}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, password, role }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || 'Ошибка входа');
         return;
       }
-
       onLogin(data.role, data);
-
-    } catch (err) {
+    } catch {
       setError('Не удалось подключиться к серверу');
     } finally {
       setLoading(false);
     }
   };
 
-  // Переключатель темы используется на страницах входа и регистрации.
   const themeToggle = (
-    <button
-      type="button"
-      className={styles.themeToggle}
-      onClick={toggleTheme}
-      title="Переключить тему оформления"
-    >
-      <img
-        src={theme === 'dark' ? toggleDark : toggleLight}
-        alt={theme === 'dark' ? 'Темная тема включена' : 'Светлая тема включена'}
-        className={styles.themeToggleImg}
-      />
+    <button type="button" className={styles.themeToggle} onClick={toggleTheme}
+      aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}>
+      {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+      <span>{theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}</span>
     </button>
   );
 
   if (showRegister) {
-    return (
-      <>
-        {themeToggle}
-        <RegisterPage onSwitch={() => setShowRegister(false)} onLogin={onLogin} />
-      </>
-    );
+    return <>{themeToggle}<RegisterPage onSwitch={() => setShowRegister(false)} /></>;
   }
 
   return (
-    <div className={`${styles.container} ${styles.loginBg}`}>
+    <main className={styles.container}>
       {themeToggle}
-      <div className={styles.card}>
-        <h2 className={styles.title}>Авторизация</h2>
-        <p className={styles.subtitle}>Выберите статус для входа в систему</p>
-        
-        <div className={styles.roleSelector}>
-          <button 
-            type="button"
-            className={`${styles.roleBtn} ${role === 'student' ? styles.activeRole : ''}`}
-            onClick={() => setRole('student')}
-          >
-            Студент
-          </button>
-          <button 
-            type="button"
-            className={`${styles.roleBtn} ${role === 'teacher' ? styles.activeRole : ''}`}
-            onClick={() => setRole('teacher')}
-          >
-           Преподаватель
-          </button>
-          <button 
-            type="button"
-            className={`${styles.roleBtn} ${role === 'admin' ? styles.activeRole : ''}`}
-            onClick={() => setRole('admin')}
-          >
-           Админ
-          </button>
-        </div>
+      <div className={styles.shell}>
+        <section className={styles.identity} aria-labelledby="welcome-title">
+          <div className={styles.brand}><AsciiStar className={styles.brandStar} />AI-profiler</div>
+          <p className={styles.eyebrow}>Карта твоих компетенций</p>
+          <h1 className={styles.heroTitle} id="welcome-title">Твой потенциал.<br /><span>Твоя траектория.</span></h1>
+          <p className={styles.intro}>Узнай свои сильные стороны и найди направление развития в IT.</p>
+          <div className={styles.artwork} aria-hidden="true"><AsciiStar className={styles.heroStar} animated /></div>
+          <p className={styles.caption}>Алгоритмы · Кодинг · Дизайн · Бизнес · Команда</p>
+        </section>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Логин"
-            required
-            className={styles.input}
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Пароль"
-            required
-            className={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0' }}>{error}</p>}
-          <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? 'Входим...' : 'Войти'}
-          </button>
-          <p style={{ textAlign: 'center', fontSize: '13px', marginTop: '8px' }}>
-            Нет аккаунта?{' '}
-            <span
-              style={{ color: 'var(--accent)', cursor: 'pointer' }}
-              onClick={() => setShowRegister(true)}
-            >
-              Зарегистрироваться
-            </span>
-          </p>
-        </form>
+        <section className={styles.card} aria-labelledby="login-title">
+          <p className={styles.eyebrow}>Личный кабинет</p>
+          <h2 className={styles.title} id="login-title">С возвращением</h2>
+          <p className={styles.subtitle}>Войди, чтобы продолжить свою траекторию.</p>
+          <div className={styles.roleSelector} role="group" aria-label="Роль для входа">
+            {roles.map(item => (
+              <button key={item.value} type="button" aria-pressed={role === item.value}
+                className={`${styles.roleBtn} ${role === item.value ? styles.activeRole : ''}`}
+                onClick={() => setRole(item.value)}>{item.label}</button>
+            ))}
+          </div>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <label className={styles.field} htmlFor="login">Логин
+              <input id="login" name="username" type="text" autoComplete="username" placeholder="Введи логин или почту" required
+                className={styles.input} value={login} onChange={e => setLogin(e.target.value)} />
+            </label>
+            <label className={styles.field} htmlFor="login-password">Пароль
+              <input id="login-password" name="password" type="password" autoComplete="current-password" placeholder="Введи пароль" required
+                className={styles.input} value={password} onChange={e => setPassword(e.target.value)} />
+            </label>
+            {error && <p className={styles.error} role="alert">{error}</p>}
+            <button type="submit" className={styles.submitBtn} disabled={loading}>
+              {loading ? 'Входим…' : 'Войти в кабинет'}<ArrowRight size={20} aria-hidden="true" />
+            </button>
+            <p className={styles.switchText}>Впервые здесь? <button type="button" className={styles.textButton} onClick={() => setShowRegister(true)}>Создать аккаунт</button></p>
+          </form>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 
 export default AuthPage;
+

@@ -1,19 +1,7 @@
-import React from 'react';
+import { useDialog } from './useDialog';
 import styles from './Modal.module.css';
-
-const Modal = ({ isOpen, onClose, text }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.content}>
-          <p className={styles.text}>{text}</p>
-        </div>
-        <button className={styles.closeBtn} onClick={onClose}>Ладно</button>
-      </div>
-    </div>
-  );
-};
-
-export default Modal;
+export default function Modal({isOpen,onClose,text}) {
+ const ref=useDialog(isOpen,onClose);
+ if(!isOpen)return null;
+ return <div className={styles.overlay} onClick={onClose}><section className={styles.modal} role="dialog" aria-modal="true" aria-label="Сообщение" ref={ref} tabIndex={-1} onClick={e=>e.stopPropagation()}><p className={styles.text}>{text}</p><button className="primary-button" onClick={onClose}>Понятно</button></section></div>
+}

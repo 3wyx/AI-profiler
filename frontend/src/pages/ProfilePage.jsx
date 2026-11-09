@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { ArrowRight, FolderOpen, FileText, Link, Paperclip, Plus, Trash2, Sparkles } from 'lucide-react';
+import AsciiStar from '../components/AsciiStar';
+import hudPaths from '../assets/moodboard/radar-frame.png';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import styles from './ProfilePage.module.css';
 
-const API = 'http://localhost:5000';
+const API = '';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'zip', 'rar'];
 
@@ -21,7 +24,7 @@ const TYPE_LABELS = {
   project:     { label: 'Проект'},
 };
 
-const emptyData = Object.values(MODULE_NAMES).map((name) => ({ subject: name, A: 0 }));
+
 
 const formatFileSize = (bytes) => {
   if (bytes < 1024) return `${bytes} Б`;
@@ -106,7 +109,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
   if (!open) {
     return (
       <button className={styles.addBtn} onClick={() => setOpen(true)}>
-        + Добавить
+        <Plus size={16} aria-hidden="true" /> Добавить
       </button>
     );
   }
@@ -114,24 +117,24 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
   return (
     <div className={styles.addForm}>
       <select
-        className={styles.formSelect}
+        className={styles.formSelect} aria-label="Тип достижения"
         value={form.type}
         onChange={(e) => setForm({ ...form, type: e.target.value })}
       >
-        {Object.entries(TYPE_LABELS).map(([val, { label, emoji }]) => (
-          <option key={val} value={val}>{emoji} {label}</option>
+        {Object.entries(TYPE_LABELS).map(([val, { label }]) => (
+          <option key={val} value={val}>{label}</option>
         ))}
       </select>
 
       <input
         className={styles.formInput}
-        placeholder="Название *"
+        aria-label="Название достижения" placeholder="Название *"
         value={form.title}
         onChange={(e) => setForm({ ...form, title: e.target.value })}
       />
       <input
         className={styles.formInput}
-        placeholder="Описание (необязательно)"
+        aria-label="Описание достижения" placeholder="Описание (необязательно)"
         value={form.description}
         onChange={(e) => setForm({ ...form, description: e.target.value })}
       />
@@ -143,21 +146,21 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
           className={`${styles.toggleBtn} ${attachMode === 'url' ? styles.toggleActive : ''}`}
           onClick={() => { setAttachMode('url'); setFile(null); setError(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
         >
-          🔗 Ссылка
+          <Link size={16} aria-hidden="true" /> Ссылка
         </button>
         <button
           type="button"
           className={`${styles.toggleBtn} ${attachMode === 'file' ? styles.toggleActive : ''}`}
           onClick={() => { setAttachMode('file'); setForm({ ...form, url: '' }); setError(''); }}
         >
-          📎 Загрузить файл
+          <Paperclip size={16} aria-hidden="true" /> Загрузить файл
         </button>
       </div>
 
       {attachMode === 'url' ? (
         <input
           className={styles.formInput}
-          placeholder="Ссылка (необязательно)"
+          aria-label="Ссылка на достижение" placeholder="Ссылка (необязательно)"
           value={form.url}
           onChange={(e) => setForm({ ...form, url: e.target.value })}
         />
@@ -172,7 +175,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
             onChange={handleFileChange}
           />
           <label htmlFor="portfolio-file-input" className={styles.fileInputLabel}>
-            {file ? '📎 Заменить файл' : '📎 Выбрать файл'}
+            {file ? 'Заменить файл' : 'Выбрать файл'}
           </label>
           {file && (
             <span className={styles.fileInfo}>
@@ -202,7 +205,7 @@ const AddPortfolioForm = ({ userId, onAdded }) => {
 // Карточка элемента портфолио.
 const PortfolioItem = ({ item, userId, onDeleted }) => {
   const [deleting, setDeleting] = useState(false);
-  const meta = TYPE_LABELS[item.type] || { label: item.type, emoji: '📎' };
+  const meta = TYPE_LABELS[item.type] || { label: item.type };
 
   const handleDelete = async () => {
     if (!window.confirm('Удалить запись?')) return;
@@ -220,15 +223,15 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
   };
 
   // Ссылка на загруженный файл или внешний ресурс.
-  const link = item.file_path
-    ? `${API}/api/portfolio/file/${item.file_path}`
-    : item.url || null;
-  const linkText = item.file_path ? (item.file_name || 'Открыть файл') : item.title;
+  const link = item.file_url
+    ? `${API}${item.file_url}`
+    : item.link || item.url || null;
+
 
   return (
     <div className={styles.portfolioItem}>
       <div className={styles.portfolioItemLeft}>
-        <span className={styles.portfolioEmoji}>{meta.emoji}</span>
+        <span className={styles.portfolioEmoji}><FileText size={22} aria-hidden="true" /></span>
         <div>
           <div className={styles.portfolioTitle}>
             {link
@@ -244,7 +247,7 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
           </div>
           {item.file_path && (
             <div className={styles.portfolioAttachment}>
-              📎 <a href={link} target="_blank" rel="noreferrer" className={styles.portfolioLink}>{item.file_name}</a>
+              <Paperclip size={14} aria-hidden="true" /> <a href={link} target="_blank" rel="noreferrer" className={styles.portfolioLink}>{item.file_name}</a>
             </div>
           )}
           <div className={styles.portfolioDate}>{item.created_at?.slice(0, 10)}</div>
@@ -255,9 +258,9 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
           className={styles.deleteBtn}
           onClick={handleDelete}
           disabled={deleting}
-          title="Удалить"
+          title="Удалить" aria-label={`Удалить ${item.title}`}
         >
-          ✕
+          <Trash2 size={16} aria-hidden="true" />
         </button>
       )}
     </div>
@@ -266,28 +269,40 @@ const PortfolioItem = ({ item, userId, onDeleted }) => {
 
 // Секция портфолио.
 const PortfolioSection = ({ userId, editable }) => {
+  const [loadError, setLoadError] = useState('');
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = () => {
+  const load = useCallback(async () => {
     if (!userId) return;
-    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/portfolio/${userId}`);
+      if (!res.ok) throw new Error('Не удалось загрузить портфолио');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+      setLoadError('');
+    } catch { setLoadError('Не удалось загрузить портфолио. Попробуйте ещё раз.'); }
+    finally { setLoading(false); }
+  }, [userId]);
+  useEffect(() => {
+    if (!userId) return;
+    let active = true;
     fetch(`${API}/api/portfolio/${userId}`)
-      .then((r) => r.json())
-      .then((data) => setItems(Array.isArray(data) ? data : []))
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, [userId]);
+      .then(res => { if (!res.ok) throw new Error('Portfolio request failed'); return res.json(); })
+      .then(data => { if (active) setItems(Array.isArray(data) ? data : []); })
+      .catch(() => { if (active) setLoadError('Не удалось загрузить портфолио. Попробуйте ещё раз.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [userId]);
 
   return (
-    <div className={`${styles.card} ${styles.fullWidth}`}>
+    <section className={styles.portfolioSection}>
       <div className={styles.portfolioHeader}>
-        <h3>Портфолио</h3>
+        <h3><FolderOpen size={19} aria-hidden="true" /> Портфолио</h3>
         {editable && <AddPortfolioForm userId={userId} onAdded={load} />}
       </div>
 
+      {loadError && <p className={styles.formError} role="alert">{loadError} <button className="text-button" onClick={load}>Повторить</button></p>}
       {loading ? (
         <p className={styles.portfolioEmpty}>Загрузка...</p>
       ) : items.length === 0 ? (
@@ -306,73 +321,65 @@ const PortfolioSection = ({ userId, editable }) => {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
-// Страница профиля студента.
-const ProfilePage = ({ user, results }) => {
-  const chartData = results
-    ? Object.entries(results.scores).map(([key, value]) => ({
-        subject: MODULE_NAMES[key] || key,
-        A: value,
-      }))
-    : emptyData;
+const STRENGTH_NAMES = { algo: 'алгоритмы', coding: 'кодинг', design: 'дизайн', entrepreneur: 'предпринимательство', teamwork: 'работа в команде' };
 
-  return (
-    <div className={styles.page} id="skills">
-      <h1 className={styles.title}>Профиль студента</h1>
-
-      <div className={styles.grid}>
-        <div className={styles.card}>
-          <h3>Информация</h3>
-          <p><strong>Студент:</strong> {user?.name || '—'}</p>
-          <p><strong>Логин:</strong> {user?.login || '—'}</p>
-          <p><strong>Роль:</strong>{' '}
-            {user?.role === 'student' ? 'Студент'
-              : user?.role === 'teacher' ? 'Преподаватель'
-              : 'Админ'}
-          </p>
-          {user?.group_name   && <p><strong>Группа:</strong> {user.group_name}</p>}
-          {user?.group_number && <p><strong>Номер группы:</strong> {user.group_number}</p>}
-          {user?.course_year  && <p><strong>Курс:</strong> {user.course_year}</p>}
-          {results && <p><strong>Профиль:</strong> {results.profile}</p>}
-        </div>
-
-        <div className={styles.card}>
-          <h3>Актуальный срез навыков</h3>
-          {!results && (
-            <p className={styles.chartHint}>
-              Пройдите тест чтобы увидеть результаты
-            </p>
-          )}
-          <div className={styles.chartContainer}>
-            <ResponsiveContainer width="100%" height={200}>
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-                <PolarGrid stroke="var(--border)" />
-                <PolarAngleAxis dataKey="subject" stroke="var(--text-main)" fontSize={12} />
-                <Radar name="Навыки" dataKey="A" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.3} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className={`${styles.card} ${styles.fullWidth}`}>
-          <h3>Последние рекомендации ИИ</h3>
-          {results ? (
-            <p className={`${styles.aiText} ${styles.aiTextWrap}`}>
-              {results.recommendations}
-            </p>
-          ) : (
-            <p className={styles.aiText}>Рекомендации появятся после прохождения теста.</p>
-          )}
-        </div>
-
-        {/* Портфолио */}
-        <PortfolioSection userId={user?.id} editable={true} />
-      </div>
+const ProfilePage = ({ user, results, onStartTest, onViewResults }) => {
+  const [chartWidth, setChartWidth] = useState(0);
+  const chartData = Object.entries(MODULE_NAMES).map(([key, subject]) => ({ subject, key, value: Number(results?.scores?.[key]) || 0 }));
+  const strongest = [...chartData].sort((a, b) => b.value - a.value).slice(0, 2);
+  const subtitle = [user?.name, user?.group_number, user?.course_year && `${user.course_year} курс`].filter(Boolean).join(' · ');
+  return <div className={styles.page}>
+    <div className={styles.heading}>
+      <div><h1>Карта твоих компетенций</h1><p>{subtitle}</p></div>
+      <AsciiStar className={styles.headingStar} />
     </div>
-  );
+    <div className={styles.profileGrid}>
+      <section className={styles.profileIntro}>
+        <div className={styles.overline}>Твой профиль</div>
+        <h2 className={styles.role}>{results?.profile || 'Начни с себя'}</h2>
+        <p className={styles.strengths}>{results ? `Сильные стороны: ${strongest.map(item => STRENGTH_NAMES[item.key]).join(' и ')}.` : 'Узнай свои сильные стороны и найди направление для развития в IT.'}</p>
+        <button className="primary-button" onClick={onStartTest}>{results ? 'Пройти тест снова' : 'Пройти тест'}<ArrowRight size={21} aria-hidden="true" /></button>
+        <details className={styles.personalDetails}><summary>Данные профиля</summary><dl>
+          <div><dt>Студент</dt><dd>{user?.name || '—'}</dd></div>
+          <div><dt>Логин</dt><dd>{user?.login || '—'}</dd></div>
+          <div><dt>Роль</dt><dd>Студент</dd></div>
+          {user?.group_name && <div><dt>Направление</dt><dd>{user.group_name}</dd></div>}
+          {user?.group_number && <div><dt>Группа</dt><dd>{user.group_number}</dd></div>}
+          {user?.course_year && <div><dt>Курс</dt><dd>{user.course_year}</dd></div>}
+        </dl></details>
+      </section>
+      <section className={styles.chartPanel} aria-label="Карта пяти компетенций">
+        <img src={hudPaths} className={styles.chartFrame} alt="" aria-hidden="true" />
+        {results ? <div className={styles.chartContainer}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} initialDimension={{ width: 350, height: 440 }} onResize={setChartWidth}>
+            <RadarChart cx="50%" cy="50%" outerRadius={chartWidth < 400 ? '65%' : '78%'} data={chartData}>
+              <PolarGrid stroke="var(--border)" />
+              <PolarAngleAxis dataKey="subject" stroke="var(--text-main)" tick={{ fontSize: 13, fontWeight: 700 }} tickLine={false} />
+              <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+              <Radar name="Баллы" dataKey="value" stroke="var(--accent)" strokeWidth={2} fill="var(--accent-strong)" fillOpacity={0.36} dot={{ r: 5, fill: 'var(--accent)', strokeWidth: 0 }} isAnimationActive={false} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div> : <div className={styles.emptyChart}><AsciiStar className={styles.emptyStar}/><p>Здесь появится твоя<br/>карта компетенций</p><span>5 направлений · 60 минут</span></div>}
+      </section>
+      <section className={styles.scores} aria-label="Баллы по направлениям">
+        {chartData.map(item => <div key={item.key} className={styles.scoreRow}>
+          <div><span>{item.subject}</span><strong>{results ? item.value : '—'}<small> / 100</small></strong></div>
+          <meter min="0" max="100" value={item.value} aria-label={`${item.subject}: ${results ? item.value : 'ещё нет результата'}`} />
+        </div>)}
+      </section>
+    </div>
+    <div className={styles.supporting}>
+      <section className={styles.advice}>
+        <h3><Sparkles size={20} aria-hidden="true" /> Рекомендация ИИ</h3>
+        <p>{results?.recommendations || 'После тестирования здесь появятся рекомендации по развитию твоих навыков.'}</p>
+        {results && <button className="text-button" onClick={onViewResults}>Все рекомендации <ArrowRight size={19} aria-hidden="true" /></button>}
+      </section>
+      <PortfolioSection userId={user?.id} editable />
+    </div>
+  </div>;
 };
-
 export default ProfilePage;
